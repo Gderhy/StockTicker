@@ -69,7 +69,7 @@ const StockDetailPage: React.FC = () => {
     maintainAspectRatio: false,
     scales: {
       x: {
-        type: "time", // Use timeseries scale for the x-axis
+        type: "time", // Use time scale for the x-axis
         time: {
           unit: timeRange === "1day" ? "hour" : "day", // Adjust unit based on range
           displayFormats: {
@@ -139,7 +139,10 @@ const StockDetailPage: React.FC = () => {
         {isLoading ? (
           <div className="loading-spinner"></div>
         ) : (
-          <Line data={chartData} options={options} />
+          <Line
+            data={chartData}
+            options={options as any} // Cast options to any to bypass type checking
+          />
         )}
       </div>
     </div>
