@@ -10,7 +10,11 @@ import {
   Title,
   Tooltip,
   Legend,
+  TimeScale,
 } from "chart.js";
+import "chartjs-adapter-date-fns"; // For date formatting
+import { fetchHistoricalData } from "../services/stockService";
+import "./StockDetail.css"; // Import styles
 
 // Register Chart.js components
 ChartJS.register(
@@ -20,21 +24,28 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  TimeScale // Add TimeScale for date formatting
 );
 
 const StockDetailPage: React.FC = () => {
   const { symbol } = useParams<{ symbol: string }>(); // Get symbol from URL
   const [historicalData, setHistoricalData] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<string>("6months"); // Default time range
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchHistoricalData(symbol, timeRange);
-      setHistoricalData(data);
+      if (symbol) {
+        setIsLoading(true);
+        const data = await fetchHistoricalData(symbol, timeRange);
+        console.log(data);
+        setHistoricalData(data);
+        setIsLoading(false);
+      }
     };
     loadData();
-  }, [symbol, timeRange]);
+  }, [timeRange]);
 
   // Format data for Chart.js
   const chartData = {
@@ -43,22 +54,63 @@ const StockDetailPage: React.FC = () => {
       {
         label: "Stock Price",
         data: historicalData.map((entry) => entry.close),
-        borderColor: "#4caf50", // Green line
-        backgroundColor: "rgba(76, 175, 80, 0.1)", // Light green fill
+        borderColor: "#2962FF", // Blue line (like Yahoo Finance)
+        backgroundColor: "rgba(41, 98, 255, 0.1)", // Light blue fill
         borderWidth: 2,
+        pointRadius: 0, // Hide points for a cleaner look
+        fill: true, // Fill area under the line
       },
     ],
   };
 
+  // Chart options
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        type: "time", // Use timeseries scale for the x-axis
+        time: {
+          unit: timeRange === "1day" ? "hour" : "day", // Adjust unit based on range
+          displayFormats: {
+            day: "MMM d", // Format as "Jan 1", "Feb 2", etc.
+            hour: "ha", // Format as "12PM", "1PM", etc.
+          },
+        },
+        grid: {
+          display: false, // Hide x-axis grid lines
+        },
+        ticks: {
+          color: "#888", // Light gray color for ticks
+        },
+      },
+      y: {
+        grid: {
+          color: "#444", // Dark gray grid lines for y-axis
+        },
+        ticks: {
+          color: "#888", // Light gray color for ticks
+        },
+      },
+    },
     plugins: {
       legend: {
-        position: "top" as const,
+        display: false, // Hide legend
       },
       title: {
         display: true,
         text: `${symbol} Stock Price`,
+        color: "#FFF", // White title text
+        font: {
+          size: 18,
+        },
+      },
+      tooltip: {
+        backgroundColor: "#333", // Dark tooltip background
+        titleColor: "#FFF", // White tooltip title
+        bodyColor: "#FFF", // White tooltip body
+        borderColor: "#444", // Gray border
+        borderWidth: 1,
       },
     },
   };
@@ -72,19 +124,23 @@ const StockDetailPage: React.FC = () => {
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
         >
-          <option value="all">All Time</option>
+          {/* <option value="all">All Time</option>
           <option value="10years">10 Years</option>
           <option value="5years">5 Years</option>
-          <option value="1year">1 Year</option>
-          <option value="6months">6 Months</option>
-          <option value="3months">3 Months</option>
+          <option value="1year">1 Year</option> */}
+          <option value="6month">6 Month</option>
+          <option value="3month">3 Month</option>
           <option value="1month">1 Month</option>
           <option value="1week">1 Week</option>
           <option value="1day">1 Day</option>
         </select>
       </div>
       <div className="chart-container">
-        <Line data={chartData} options={options} />
+        {isLoading ? (
+          <div className="loading-spinner"></div>
+        ) : (
+          <Line data={chartData} options={options} />
+        )}
       </div>
     </div>
   );

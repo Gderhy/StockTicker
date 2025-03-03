@@ -93,7 +93,7 @@ const StockTicker: React.FC = () => {
                 return (
                   <tr
                     key={stock.symbol}
-                    onClick={() => navigate(`/stock/${stock.symbol}`)}
+                    onClick={() => navigate(`/stocks/${stock.symbol}`)}
                     style={{ cursor: "pointer" }}
                   >
                     <td>{stock.lastUpdate}</td>

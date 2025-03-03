@@ -8,8 +8,11 @@ const router = express.Router();
 
 // Route to fetch history of a specific stock
 router.get("/:stockSymbol", async (req, res) => {
+
+  console.log("GET /api/stocks/:stockSymbol");
+
   const { stockSymbol } = req.params;
-  const { range } = req.query;
+  const { range } = req.query; // Range query parameter (e.g., 1month, 3month, 6month)
 
   if (!stockSymbol) {
     return res.status(400).json({ message: "Stock symbol is required" });

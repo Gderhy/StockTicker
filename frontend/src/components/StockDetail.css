@@ -1,25 +1,92 @@
 .stock-detail-container {
   max-width: 1200px;
-  margin: auto;
-  padding: 20px;
+  margin: 2rem auto;
+  padding: 2rem;
   background-color: #1e1e1e;
   color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-family: Arial, sans-serif;
+}
+
+.stock-detail-container h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #2962ff;
+  /* Blue color for the title */
 }
 
 .time-range-selector {
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.time-range-selector label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #888;
+  /* Light gray color */
 }
 
 .time-range-selector select {
-  padding: 8px;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   background-color: #333;
   color: #ffffff;
   border: 1px solid #444;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.time-range-selector select:hover {
+  background-color: #444;
+  border-color: #555;
+}
+
+.time-range-selector select:focus {
+  outline: none;
+  border-color: #2962ff;
+  box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.3);
 }
 
 .chart-container {
-  margin-top: 20px;
+  margin-top: 2rem;
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  height: 500px;
+  /* Fixed height for the chart */
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.loading-spinner::after {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border: 4px solid #2962ff;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

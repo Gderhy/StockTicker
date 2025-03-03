@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const mongoose = require("mongoose");
 const connectDB = require("../DAO/connectDB"); // Import the database connection function
-const StockCollection = require("../DAO/models/Stock"); // Import the Stock Collection 
+const StockCollection = require("../DAO/models/Stock"); // Import the Stock Collection
 
 const stocks = [
   { symbol: "AAPL", companyName: "Apple" },
@@ -12,7 +12,7 @@ const stocks = [
 // Function to generate random stock data and save to MongoDB
 async function generateStockData() {
   return Promise.all(
-    stocks.map(async ({symbol, companyName}) => {
+    stocks.map(async ({ symbol, companyName }) => {
       const stockData = [];
 
       // Generate stock data for a specific date range (e.g., last 6 months)
@@ -39,7 +39,7 @@ async function generateStockData() {
           high,
           low,
           volume,
-          date: currentDateCopy, // Current date in the loop
+          date: new Date(currentDateCopy), // Use a new Date to store the correct date
           adjustedClose: null, // Optional, can be left as null
         });
 

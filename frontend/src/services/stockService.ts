@@ -57,3 +57,20 @@ export const fetchStockData = async () => {
     throw error;
   }
 };
+
+export const fetchHistoricalData = async (symbol: string, range: string) => {
+  try {
+    if(!symbol) {
+      throw new Error("Symbol is required");
+    }
+    if(!range) {
+      range = "6months"; // Default range
+    }
+    const response = await fetch(`http://localhost:4000/api/stocks/${symbol}?range=${range}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching historical data:", error);
+    throw error;
+  }
+}
