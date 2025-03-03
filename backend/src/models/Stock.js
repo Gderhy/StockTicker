@@ -33,6 +33,7 @@ const stockSchema = new mongoose.Schema(
       type: Date,
       default: Date.now, // Defaults to current date and time if not provided
       index: true, // Index to improve querying based on date
+      required: true, // Date is required
     },
     adjustedClose: {
       type: Number, // Optional field for adjusted closing price
