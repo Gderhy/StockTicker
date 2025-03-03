@@ -33,12 +33,13 @@ wss.on("connection", (ws, req) => {
   ws.on("message", (message) => {
     try {
       const data = JSON.parse(message);
+      console.log(`Received message from ${clientId}:`, data);
 
       // Check if the message is a subscription request
-      if (data.action === "subscribe" && data.stockSymbol) {
+      if (data.action === "subscribe" && data.symbol) {
         // Add stock to client's subscribed stocks list
-        ws.subscribedStock = data.stockSymbol;
-        console.log(`${clientId} subscribed to ${data.stockSymbol}`);
+        ws.subscribedStock = data.symbol;
+        console.log(`${clientId} subscribed to ${data.symbol}`);
       }
 
     } catch (error) {
@@ -69,10 +70,13 @@ setInterval(async () => {
       if (client.subscribedStock === "all") {
         // If on homepage -- if client is subscribed to all stocks
         client.send(JSON.stringify(allStockData)); // Send the latest stock data to clients
-
-      } else if (client.subscribedStock) {
+      } else if (client.subscribedStock !== null) {
         // If client is subscribed to a specific stock
-        const specificStockData = await fetchSpecificStockData(client.subscribedStock); // Fetch the history stock data for the subscribed stock
+        console.log(`Client ${client.clientId} is subscribed to ${client.subscribedStock}`);
+        const specificStockData = allStockData.filter(
+          (stock) => stock.symbol === client.subscribedStock
+        );
+        client.send(JSON.stringify(specificStockData)); // Send the specific stock data to clients
       } else {
         console.log(`Client ${client.clientId} is not connected.`);
       }

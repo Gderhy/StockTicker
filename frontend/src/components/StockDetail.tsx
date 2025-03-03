@@ -13,7 +13,10 @@ import {
   TimeScale,
 } from "chart.js";
 import "chartjs-adapter-date-fns"; // For date formatting
-import { fetchHistoricalData } from "../services/stockService";
+import {
+  fetchHistoricalData,
+  connectToStockService,
+} from "../services/stockService";
 import "./StockDetail.css"; // Import styles
 
 // Register Chart.js components
@@ -33,19 +36,34 @@ const StockDetailPage: React.FC = () => {
   const [historicalData, setHistoricalData] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<string>("6months"); // Default time range
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [livePrice, setLivePrice] = useState<number | null>(null); // Store live stock price
+
+  // Function to handle live stock price updates
+  const handleLivePriceUpdate = (stockData: any) => {
+    if (stockData.symbol === symbol) {
+      setLivePrice(stockData.price); // Update the live price when a new message is received
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
       if (symbol) {
         setIsLoading(true);
         const data = await fetchHistoricalData(symbol, timeRange);
-        console.log(data);
         setHistoricalData(data);
         setIsLoading(false);
       }
     };
     loadData();
-  }, [timeRange]);
+  }, [symbol, timeRange]);
+
+  useEffect(() => {
+    const webSocketConnection = connectToStockService(handleLivePriceUpdate, symbol);
+
+    return () => {
+      if (webSocketConnection) webSocketConnection.close(); // Clean up connection
+    };
+  }, []);
 
   // Format data for Chart.js
   const chartData = {
@@ -118,6 +136,12 @@ const StockDetailPage: React.FC = () => {
   return (
     <div className="stock-detail-container">
       <h1>{symbol} Historical Prices</h1>
+      {livePrice !==null && (
+        <div className="live-price">
+          <h2>Live Price: ${livePrice}</h2>
+          {/* Display live price */}
+        </div>
+      )}
       <div className="time-range-selector">
         <label>Time Range: </label>
         <div className="time-range-options">
