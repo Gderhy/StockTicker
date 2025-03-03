@@ -24,6 +24,11 @@ generateStockData().then(() => {
   console.log("Initial stock data for 6 months generated.");
 });
 
+wss.on("connection", (ws) => {
+  console.log("Client connected to WebSocket server.");
+  ws.on("close", () => console.log("Client disconnected from WebSocket server."));
+});
+
 // Send stock updates periodically (e.g., every second)
 setInterval(async () => {
   // Fetch the most recent stock data or calculate updates
