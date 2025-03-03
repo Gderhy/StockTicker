@@ -1,55 +1,43 @@
-require("dotenv").config();
-const express = require("express");
-const http = require("http");
-const WebSocket = require("ws");
-const cors = require("cors");
-const mongoose = require("mongoose");
+require("dotenv").config(); // Load environment variables
+const express = require("express"); // Import Express framework
+const http = require("http"); // Import HTTP module
+const WebSocket = require("ws"); // Import WebSocket for real-time updates
+const cors = require("cors"); // Import CORS to allow cross-origin requests
+const mongoose = require("mongoose"); // Import Mongoose for MongoDB interaction
 
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const stockRoutes = require("./src/routes/stocks"); // Import API routes
+const { generateStockData, stocks } = require("./src/services/stockServices"); // Import stock service
 
-app.use(cors());
+const app = express(); // Initialize Express app
+const server = http.createServer(app); // Create HTTP server
+const wss = new WebSocket.Server({ server }); // Create WebSocket server
 
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+app.use(cors()); // Enable CORS for cross-origin requests
+app.use(express.json()); // Enable JSON parsing
+app.use("/api/stocks", stockRoutes); // Use stock routes
 
-// Stock Schema
-const stockSchema = new mongoose.Schema({
-  stock: String,
-  price: Number,
-  time: { type: Date, default: Date.now },
-});
-const Stock = mongoose.model("Stock", stockSchema);
+// Connect to MongoDB using Mongoose
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI); // Connect to MongoDB
+    console.log("✅ Connected to MongoDB");
+  } catch (error) {
+    console.error("❌ MongoDB connection error:", error);
+    process.exit(1); // Exit process on failure
+  }
+};
+connectDB(); // Call the function to establish database connection
 
-const stocks = ["AAPL", "GOOGL", "MSFT"];
-
-async function generateStockData() {
-  return Promise.all(
-    stocks.map(async (stock) => {
-      const price = (Math.random() * 100 + 100).toFixed(2);
-      const stockEntry = new Stock({ stock, price });
-      await stockEntry.save();
-      return { stock, price };
-    })
-  );
-}
-
+// Update stock prices every second and send updates via WebSocket
 setInterval(async () => {
-  const stockData = await generateStockData();
+  const stockData = await generateStockData(); // Generate new stock data
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(stockData));
+      // Check if WebSocket client is open
+      client.send(JSON.stringify(stockData)); // Send stock data to clients
     }
   });
 }, 1000);
 
-app.get("/history", async (req, res) => {
-  const history = await Stock.find().sort({ time: -1 }).limit(90);
-  res.json(history);
-});
-
+// Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
