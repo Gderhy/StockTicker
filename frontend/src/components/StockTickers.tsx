@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { connectToStockService } from "../services/stockService";
-import "./StockTicker.css"; // Import styles
+import "./StockTickers.css"; // Import styles
 import { StockDataType } from "../types";
+import { useNavigate } from "react-router-dom";
 
 const StockTicker: React.FC = () => {
+  const navigate = useNavigate();
+
   const [stockData, setStockData] = useState<Map<string, StockDataType>>(
     new Map()
   );
@@ -11,6 +14,9 @@ const StockTicker: React.FC = () => {
     Map<string, StockDataType>
   >(new Map());
   const [isLoadingStockData, setIsLoadingStockData] = useState<boolean>(true);
+
+  // Use a ref to store the WebSocket connection
+  const wsConnection = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     const unsubscribe = connectToStockService((data: any) => {
@@ -38,8 +44,13 @@ const StockTicker: React.FC = () => {
       setIsLoadingStockData(false);
     });
 
+    wsConnection.current = unsubscribe;
+
     return () => {
-      if (unsubscribe) unsubscribe();
+      if (wsConnection.current) {
+        wsConnection.current.close(); // Close the WebSocket connection
+        console.log("WebSocket connection closed.");
+      }
     };
   }, []);
 
@@ -80,7 +91,11 @@ const StockTicker: React.FC = () => {
                 );
 
                 return (
-                  <tr key={stock.symbol}>
+                  <tr
+                    key={stock.symbol}
+                    onClick={() => navigate(`/stock/${stock.symbol}`)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <td>{stock.lastUpdate}</td>
                     <td>{stock.symbol}</td>
                     <td>{stock.companyName}</td>

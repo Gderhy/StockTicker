@@ -8,13 +8,14 @@ let socket: WebSocket | null = null;
 export const connectToStockService = (onMessage: (data: any) => void) => {
   if (socket !== null && socket.readyState === WebSocket.OPEN) {
     console.log("Already connected to WebSocket");
-    return () => {}; // No new connection needed
+    return socket; // No new connection needed
   }
 
   socket = new WebSocket(STOCK_SERVER_URL);
 
   socket.onopen = () => {
     console.log("Connected to the WebSocket server");
+    socket?.send(JSON.stringify({ type: "subscribe", subscribedStock: "all" })); // Subscribe to all stocks
   };
 
   socket.onmessage = (event) => {
@@ -33,12 +34,7 @@ export const connectToStockService = (onMessage: (data: any) => void) => {
   };
 
   // Return an unsubscribe function to close the connection
-  return () => {
-    if (socket) {
-      socket.close();
-      socket = null; // Reset socket
-    }
-  };
+  return socket;
 };
 
 // Function to send a message to the WebSocket server (if needed)
@@ -61,4 +57,3 @@ export const fetchStockData = async () => {
     throw error;
   }
 };
-
