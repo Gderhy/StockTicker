@@ -6,7 +6,7 @@ const cors = require("cors"); // Import CORS to allow cross-origin requests
 const connectDB = require("./src/services/connectDB"); // Import database connection
 
 const stockRoutes = require("./src/routes/stocks"); // Import API routes
-const { generateStockData, stocks } = require("./src/services/stockServices"); // Import stock service
+const { generateStockData, stocks } = require("./src/services/generateStockData"); // Import stock service
 const { fetchLatestStockData } = require("./src/services/fetchStockData"); // Import fetch stock data service
 
 const app = express(); // Initialize Express app
