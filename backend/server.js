@@ -39,7 +39,7 @@ setInterval(async () => {
       client.send(JSON.stringify(stockData)); // Send the latest stock data to clients
     }
   });
-}, 20000); // Must Modify this to 1 second
+}, 5000); // Must Modify this to 1 second
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
