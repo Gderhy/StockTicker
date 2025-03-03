@@ -22,13 +22,6 @@ app.use("/api/stocks", stockRoutes); // Use stock routes
 
 connectDB(); // Call the function to establish database connection
 
-// Generate stock data once when the server starts
-if (process.env.generateStockData === "true" || process.env.generateStockData === true) {
-  generateStockData().then(() => {
-    console.log("Initial stock data for 6 months generated.");
-  });
-}
-
 wss.on("connection", (ws) => {
   console.log("Client connected to WebSocket server.");
   ws.on("close", () =>
