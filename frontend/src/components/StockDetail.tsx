@@ -120,20 +120,63 @@ const StockDetailPage: React.FC = () => {
       <h1>{symbol} Historical Prices</h1>
       <div className="time-range-selector">
         <label>Time Range: </label>
-        <select
-          value={timeRange}
-          onChange={(e) => setTimeRange(e.target.value)}
-        >
-          {/* <option value="all">All Time</option>
-          <option value="10years">10 Years</option>
-          <option value="5years">5 Years</option>
-          <option value="1year">1 Year</option> */}
-          <option value="6month">6 Month</option>
-          <option value="3month">3 Month</option>
-          <option value="1month">1 Month</option>
-          <option value="1week">1 Week</option>
-          <option value="1day">1 Day</option>
-        </select>
+        <div className="time-range-options">
+          <div>
+            <input
+              type="radio"
+              id="6month"
+              name="timeRange"
+              value="6months"
+              checked={timeRange === "6months"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="6month">6 Months</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="3month"
+              name="timeRange"
+              value="3months"
+              checked={timeRange === "3months"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="3month">3 Months</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="1month"
+              name="timeRange"
+              value="1month"
+              checked={timeRange === "1month"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="1month">1 Month</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="1week"
+              name="timeRange"
+              value="1week"
+              checked={timeRange === "1week"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="1week">1 Week</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="1day"
+              name="timeRange"
+              value="1day"
+              checked={timeRange === "1day"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="1day">1 Day</label>
+          </div>
+        </div>
       </div>
       <div className="chart-container">
         {isLoading ? (
