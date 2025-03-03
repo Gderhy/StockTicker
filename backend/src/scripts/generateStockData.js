@@ -1,4 +1,7 @@
-const Stock = require("../DAO/models/Stock"); // Import the Stock model (DB schema)
+#!/usr/bin/env node
+const mongoose = require("mongoose");
+const connectDB = require("../DAO/connectDB"); // Import the database connection function
+const { HistoricalStock } = require("../DAO/models/Stock"); // Import the Stock model (DB schema)
 
 const stocks = ["AAPL", "GOOGL", "MSFT"]; // List of stock symbols
 
@@ -24,7 +27,7 @@ async function generateStockData() {
         const volume = Math.floor(Math.random() * 1000000) + 10000; // Random volume
 
         // Create a new stock entry for the current date
-        const stockEntry = new Stock({
+        const stockEntry = new HistoricalStock({
           symbol, // The stock symbol (e.g., AAPL)
           open,
           close,
@@ -41,7 +44,7 @@ async function generateStockData() {
 
       // Save the generated stock data in MongoDB
       try {
-        await Stock.insertMany(stockData); // Insert multiple stock records at once
+        await HistoricalStock.insertMany(stockData); // Insert multiple stock records at once
         console.log(`Stock data for ${symbol} inserted successfully.`);
       } catch (error) {
         console.error("Error inserting stock data:", error);
@@ -52,4 +55,22 @@ async function generateStockData() {
   );
 }
 
-module.exports = { generateStockData, stocks };
+// Connect to MongoDB and run the script
+async function main() {
+  try {
+    await connectDB(); // Connect to MongoDB
+
+    // Clear existing data
+    await HistoricalStock.deleteMany({});
+    console.log("Cleared existing stock data.");
+
+    // Generate and save stock data
+    await generateStockData();
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+  } finally {
+    mongoose.connection.close(); // Close the MongoDB connection
+  }
+}
+
+main();

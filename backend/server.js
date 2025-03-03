@@ -23,8 +23,7 @@ app.use("/api/stocks", stockRoutes); // Use stock routes
 connectDB(); // Call the function to establish database connection
 
 // Generate stock data once when the server starts
-
-if (process.env.generateStockData) {
+if (process.env.generateStockData === "true" || process.env.generateStockData === true) {
   generateStockData().then(() => {
     console.log("Initial stock data for 6 months generated.");
   });
@@ -51,7 +50,7 @@ setInterval(async () => {
       client.send(JSON.stringify(stockData)); // Send the latest stock data to clients
     }
   });
-}, 5000);
+}, 20000);
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
