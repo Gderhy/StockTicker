@@ -24,19 +24,28 @@
 }
 
 /* Price change colors */
-.price.green,
-.change.green {
+/* Ensure proper price styling */
+td.price {
+  font-weight: bold;
+}
+
+/* Ensure change indicators are bold */
+td.change {
+  font-weight: bold;
+}
+
+/* Apply color classes explicitly */
+td.price.green,
+td.change.green {
   color: green;
-  font-weight: bold;
 }
 
-.price.red,
-.change.red {
+td.price.red,
+td.change.red {
   color: red;
-  font-weight: bold;
 }
 
-.price.grey,
-.change.grey {
+td.price.grey,
+td.change.grey {
   color: grey;
 }

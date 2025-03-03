@@ -1,32 +1,39 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { connectToStockService } from "../services/stockService";
 import "./StockTicker.css"; // Import styles
+import { StockDataType } from "../types";
 
 const StockTicker: React.FC = () => {
-  const [stockData, setStockData] = useState<any[]>([]);
+  const [stockData, setStockData] = useState<Map<string, StockDataType>>(
+    new Map()
+  );
+  const [previousStockData, setPreviousStockData] = useState<
+    Map<string, StockDataType>
+  >(new Map());
   const [isLoadingStockData, setIsLoadingStockData] = useState<boolean>(true);
-  const previousPricesRef = useRef<
-    Record<string, { price: number; lastUpdate: string }>
-  >({});
 
   useEffect(() => {
     const unsubscribe = connectToStockService((data: any) => {
-      setStockData((prevData) => {
-        return data.map((stock: any) => {
-          const previousEntry = previousPricesRef.current[stock.symbol] || {
-            price: stock.close,
-            lastUpdate: "N/A",
-          };
+      setStockData((prevStockData) => {
+        const updatedStockData = new Map(prevStockData);
 
-          const lastUpdate = new Date().toLocaleTimeString(); // Store update time
+        data.forEach((stock: any) => {
+          const lastUpdate = new Date().toLocaleTimeString();
 
-          previousPricesRef.current[stock.symbol] = {
-            price: stock.close,
-            lastUpdate,
-          };
+          // Save previous stock data before updating
+          setPreviousStockData((prev) => {
+            const updatedPrev = new Map(prev);
+            if (prev.has(stock.symbol)) {
+              updatedPrev.set(stock.symbol, prev.get(stock.symbol)!);
+            }
+            return updatedPrev;
+          });
 
-          return { ...stock, previousPrice: previousEntry.price, lastUpdate };
+          // Update stock data
+          updatedStockData.set(stock.symbol, { ...stock, lastUpdate });
         });
+
+        return updatedStockData;
       });
 
       setIsLoadingStockData(false);
@@ -58,16 +65,21 @@ const StockTicker: React.FC = () => {
               <th>High</th>
               <th>Low</th>
               <th>Volume</th>
-              <th>Change</th>
+              <th>Price Change</th>
             </tr>
           </thead>
           <tbody>
-            {!isLoadingStockData && Array.isArray(stockData) ? (
-              stockData.map((stock) => {
+            {!isLoadingStockData ? (
+              Array.from(stockData.values()).map((stock) => {
+                const previousStock = previousStockData.get(stock.symbol);
+                const previousPrice = previousStock
+                  ? previousStock.close
+                  : stock.close;
                 const changeColor = getPriceChangeColor(
                   stock.close,
-                  stock.previousPrice
+                  previousPrice
                 );
+
                 return (
                   <tr key={stock.symbol}>
                     <td>{stock.lastUpdate}</td>
@@ -81,12 +93,12 @@ const StockTicker: React.FC = () => {
                     <td>${stock.low.toFixed(2)}</td>
                     <td>{stock.volume.toLocaleString()}</td>
                     <td className={`change ${changeColor}`}>
-                      {stock.close > stock.previousPrice
+                      {stock.close > previousPrice
                         ? "▲"
-                        : stock.close < stock.previousPrice
+                        : stock.close < previousPrice
                         ? "▼"
-                        : "—"}
-                      ${Math.abs(stock.close - stock.previousPrice).toFixed(2)}
+                        : "—"}{" "}
+                      ${Math.abs(stock.close - previousPrice).toFixed(2)}
                     </td>
                   </tr>
                 );
