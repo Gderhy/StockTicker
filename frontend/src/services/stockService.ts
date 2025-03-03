@@ -2,17 +2,8 @@
 
 const STOCK_SERVER_URL = "ws://localhost:4000"; // Your backend WebSocket URL
 
-
-
 // Function to initialize WebSocket connection
 export const connectToStockService = (onMessage: (data: any) => void, subscribedStockSymbol="all") => {
-  // let socket: WebSocket | null = null;
-
-  // if (socket !== null && socket.readyState === WebSocket.OPEN) {
-  //   console.log("Already connected to WebSocket");
-  //   return socket; // No new connection needed
-  // }
-  
   // Function to send a message to the WebSocket server (if needed)
   const sendMessage = (message: string) => {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {

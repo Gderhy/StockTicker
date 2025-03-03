@@ -18,6 +18,7 @@ import {
   connectToStockService,
 } from "../services/stockService";
 import "./StockDetail.css"; // Import styles
+import { StockDataType } from "../types";
 
 // Register Chart.js components
 ChartJS.register(
@@ -39,9 +40,12 @@ const StockDetailPage: React.FC = () => {
   const [livePrice, setLivePrice] = useState<number | null>(null); // Store live stock price
 
   // Function to handle live stock price updates
-  const handleLivePriceUpdate = (stockData: any) => {
-    if (stockData.symbol === symbol) {
-      setLivePrice(stockData.price); // Update the live price when a new message is received
+  const handleLivePriceUpdate = (stockData: StockDataType[]) => {
+    if (!stockData) return;
+
+    if (stockData.length > 0) {
+      const latestPrice = stockData[0].close;
+      setLivePrice(latestPrice);
     }
   };
 
@@ -58,7 +62,10 @@ const StockDetailPage: React.FC = () => {
   }, [symbol, timeRange]);
 
   useEffect(() => {
-    const webSocketConnection = connectToStockService(handleLivePriceUpdate, symbol);
+    const webSocketConnection = connectToStockService(
+      handleLivePriceUpdate,
+      symbol
+    );
 
     return () => {
       if (webSocketConnection) webSocketConnection.close(); // Clean up connection
@@ -136,7 +143,7 @@ const StockDetailPage: React.FC = () => {
   return (
     <div className="stock-detail-container">
       <h1>{symbol} Historical Prices</h1>
-      {livePrice !==null && (
+      {livePrice !== null && (
         <div className="live-price">
           <h2>Live Price: ${livePrice}</h2>
           {/* Display live price */}
@@ -148,35 +155,13 @@ const StockDetailPage: React.FC = () => {
           <div>
             <input
               type="radio"
-              id="6month"
+              id="1day"
               name="timeRange"
-              value="6months"
-              checked={timeRange === "6months"}
+              value="1day"
+              checked={timeRange === "1day"}
               onChange={(e) => setTimeRange(e.target.value)}
             />
-            <label htmlFor="6month">6 Months</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="3month"
-              name="timeRange"
-              value="3months"
-              checked={timeRange === "3months"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="3month">3 Months</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="1month"
-              name="timeRange"
-              value="1month"
-              checked={timeRange === "1month"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="1month">1 Month</label>
+            <label htmlFor="1day">1 Day</label>
           </div>
           <div>
             <input
@@ -192,13 +177,35 @@ const StockDetailPage: React.FC = () => {
           <div>
             <input
               type="radio"
-              id="1day"
+              id="1month"
               name="timeRange"
-              value="1day"
-              checked={timeRange === "1day"}
+              value="1month"
+              checked={timeRange === "1month"}
               onChange={(e) => setTimeRange(e.target.value)}
             />
-            <label htmlFor="1day">1 Day</label>
+            <label htmlFor="1month">1 Month</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="3month"
+              name="timeRange"
+              value="3months"
+              checked={timeRange === "3months"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="3month">3 Months</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="6month"
+              name="timeRange"
+              value="6months"
+              checked={timeRange === "6months"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="6month">6 Months</label>
           </div>
         </div>
       </div>
