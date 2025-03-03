@@ -1,15 +1,33 @@
+// ./src/routes/stocks.js
+
 const express = require("express");
-const Stock = require("../DAO/models/Stock");
+const StockCollection = require("../DAO/models/Stock");
+const { filterDataByRange } = require("../utils/helperFunctions");
 
 const router = express.Router();
 
-// API route to fetch historical stock data
-router.get("/history", async (req, res) => {
+// Route to fetch history of a specific stock
+router.get("/:stockSymbol", async (req, res) => {
+  const { stockSymbol } = req.params;
+  const { range } = req.query;
+
+  if (!stockSymbol) {
+    return res.status(400).json({ message: "Stock symbol is required" });
+  }
+
   try {
-    const history = await Stock.find().sort({ time: -1 }).limit(90); // Fetch last 90 stock entries
-    res.json(history);
+    // Fetch all stock data for the given symbol
+    const stockData = await StockCollection.find({ symbol: stockSymbol }).sort({
+      date: -1,
+    });
+
+    // Filter data based on the requested range
+    const filteredData = filterDataByRange(stockData, range);
+
+    res.json(filteredData);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch stock history" });
+    console.error(`Error fetching stock data for ${stockSymbol}:`, error);
+    res.status(500).json({ message: "Error fetching stock data" });
   }
 });
 
