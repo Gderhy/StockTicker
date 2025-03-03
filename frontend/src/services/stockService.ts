@@ -4,6 +4,9 @@ const STOCK_SERVER_URL = "ws://localhost:4000"; // Your backend WebSocket URL
 
 // Function to initialize WebSocket connection
 export const connectToStockService = (onMessage: (data: any) => void, subscribedStockSymbol="all") => {
+  
+  const socket = new WebSocket(STOCK_SERVER_URL);
+  
   // Function to send a message to the WebSocket server (if needed)
   const sendMessage = (message: string) => {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
@@ -12,9 +15,7 @@ export const connectToStockService = (onMessage: (data: any) => void, subscribed
       console.error("WebSocket connection is closed");
     }
   };
-
-  const socket = new WebSocket(STOCK_SERVER_URL);
-
+  
   socket.onopen = () => {
     console.log("Connected to the WebSocket server");    
     sendMessage(JSON.stringify({ action: "subscribe", symbol: subscribedStockSymbol }));
@@ -35,7 +36,6 @@ export const connectToStockService = (onMessage: (data: any) => void, subscribed
     console.error("WebSocket error:", error);
   };
 
-  // Return an unsubscribe function to close the connection
   return socket;
 };
 

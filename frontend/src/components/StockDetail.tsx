@@ -38,6 +38,7 @@ const StockDetailPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<string>("6months"); // Default time range
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [livePrice, setLivePrice] = useState<number | null>(null); // Store live stock price
+  const [previousLivePrice, setPreviousLivePrice] = useState<number | null>(null); // Store previous live stock price
 
   // Function to handle live stock price updates
   const handleLivePriceUpdate = (stockData: StockDataType[]) => {
@@ -45,7 +46,13 @@ const StockDetailPage: React.FC = () => {
 
     if (stockData.length > 0) {
       const latestPrice = stockData[0].close;
-      setLivePrice(latestPrice);
+      setLivePrice(prevLivePrice => {
+
+        // Save previous live price
+        setPreviousLivePrice(prevLivePrice);
+        
+
+        return latestPrice});
     }
   };
 
@@ -145,7 +152,13 @@ const StockDetailPage: React.FC = () => {
       <h1>{symbol} Historical Prices</h1>
       {livePrice !== null && (
         <div className="live-price">
-          <h2>Live Price: ${livePrice}</h2>
+            <h2 
+            style={{ 
+              color: livePrice > (previousLivePrice ?? livePrice) ? "green" : livePrice < (previousLivePrice ?? livePrice) ? "red" : "white" 
+            }}
+            >
+            Live Price: ${livePrice.toFixed(2)}
+            </h2>
           {/* Display live price */}
         </div>
       )}
