@@ -70,19 +70,19 @@ async function generateStockData() {
 
 // Connect to MongoDB and run the script
 async function main() {
-  try {
-    await connectDB();
+  // try {
+  //   await connectDB();
 
-    // Optional: Clear existing data
-    await StockCollection.deleteMany({});
-    console.log("Cleared existing stock data.");
+  //   // Optional: Clear existing data
+  //   await StockCollection.deleteMany({});
+  //   console.log("Cleared existing stock data.");
 
-    await generateStockData();
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-  } finally {
-    mongoose.connection.close();
-  }
+  //   await generateStockData();
+  // } catch (error) {
+  //   console.error("Error connecting to MongoDB:", error);
+  // } finally {
+  //   mongoose.connection.close();
+  // }
 }
 
 main();
