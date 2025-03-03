@@ -3,7 +3,7 @@ const express = require("express"); // Import Express framework
 const http = require("http"); // Import HTTP module
 const WebSocket = require("ws"); // Import WebSocket for real-time updates
 const cors = require("cors"); // Import CORS to allow cross-origin requests
-const mongoose = require("mongoose"); // Import Mongoose for MongoDB interaction
+const connectDB = require("./src/services/connectDB"); // Import database connection
 
 const stockRoutes = require("./src/routes/stocks"); // Import API routes
 const { generateStockData, stocks } = require("./src/services/stockServices"); // Import stock service
@@ -16,16 +16,6 @@ app.use(cors()); // Enable CORS for cross-origin requests
 app.use(express.json()); // Enable JSON parsing
 app.use("/api/stocks", stockRoutes); // Use stock routes
 
-// Connect to MongoDB using Mongoose
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI); // Connect to MongoDB
-    console.log("✅ Connected to MongoDB");
-  } catch (error) {
-    console.error("❌ MongoDB connection error:", error);
-    process.exit(1); // Exit process on failure
-  }
-};
 connectDB(); // Call the function to establish database connection
 
 // Update stock prices every second and send updates via WebSocket
