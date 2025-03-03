@@ -1,5 +1,5 @@
 const express = require("express");
-const Stock = require("../models/Stock");
+const Stock = require("../DAO/models/Stock");
 
 const router = express.Router();
 

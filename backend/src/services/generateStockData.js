@@ -1,4 +1,4 @@
-const Stock = require("../models/Stock"); // Import the Stock model (DB schema)
+const Stock = require("../DAO/models/Stock"); // Import the Stock model (DB schema)
 
 const stocks = ["AAPL", "GOOGL", "MSFT"]; // List of stock symbols
 

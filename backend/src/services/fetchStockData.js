@@ -1,4 +1,4 @@
-const Stock = require("../models/Stock");
+const Stock = require("../DAO/models/Stock");
 
 // Function to fetch the latest stock data from MongoDB
 async function fetchLatestStockData() {

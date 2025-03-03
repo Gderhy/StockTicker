@@ -3,10 +3,13 @@ const express = require("express"); // Import Express framework
 const http = require("http"); // Import HTTP module
 const WebSocket = require("ws"); // Import WebSocket for real-time updates
 const cors = require("cors"); // Import CORS to allow cross-origin requests
-const connectDB = require("./src/services/connectDB"); // Import database connection
+const connectDB = require("./src/DAO/connectDB"); // Import database connection
 
 const stockRoutes = require("./src/routes/stocks"); // Import API routes
-const { generateStockData, stocks } = require("./src/services/generateStockData"); // Import stock service
+const {
+  generateStockData,
+  stocks,
+} = require("./src/services/generateStockData"); // Import stock service
 const { fetchLatestStockData } = require("./src/services/fetchStockData"); // Import fetch stock data service
 
 const app = express(); // Initialize Express app
@@ -20,18 +23,26 @@ app.use("/api/stocks", stockRoutes); // Use stock routes
 connectDB(); // Call the function to establish database connection
 
 // Generate stock data once when the server starts
-generateStockData().then(() => {
-  console.log("Initial stock data for 6 months generated.");
-});
+
+if (process.env.generateStockData) {
+  generateStockData().then(() => {
+    console.log("Initial stock data for 6 months generated.");
+  });
+}
 
 wss.on("connection", (ws) => {
   console.log("Client connected to WebSocket server.");
-  ws.on("close", () => console.log("Client disconnected from WebSocket server."));
+  ws.on("close", () =>
+    console.log("Client disconnected from WebSocket server.")
+  );
+  ws.on("error", (error) => console.error("WebSocket error:", error));
 });
 
 // Send stock updates periodically (e.g., every second)
 setInterval(async () => {
-  console.log(`[${new Date().toISOString()}] Sending stock updates to clients...`);
+  console.log(
+    `[${new Date().toISOString()}] Sending stock updates to clients...`
+  );
   // Fetch the most recent stock data or calculate updates
   const stockData = await fetchLatestStockData(); // Function to get the latest stock data
   wss.clients.forEach((client) => {
