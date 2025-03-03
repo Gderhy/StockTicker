@@ -1,16 +1,17 @@
-const Stock = require("../DAO/models/Stock");
+const StockCollection = require("../DAO/models/Stock");
 
 // Function to fetch the latest stock data from MongoDB
 async function fetchLatestStockData() {
   try {
     // Fetch the most recent stock data for each symbol
-    const latestStockData = await Stock.aggregate([
+    const latestStockData = await StockCollection.aggregate([
       {
         $sort: { date: -1 }, // Sort by date in descending order
       },
       {
         $group: {
           _id: "$symbol", // Group by stock symbol
+          companyName: { $first: "$companyName" }, // Get the company
           latestPrice: { $first: "$close" }, // Get the most recent closing price
           latestOpen: { $first: "$open" }, // Get the most recent opening price
           latestHigh: { $first: "$high" }, // Get the most recent high price
@@ -24,6 +25,7 @@ async function fetchLatestStockData() {
     // Format the stock data for the WebSocket response
     const formattedStockData = latestStockData.map((stock) => ({
       symbol: stock._id,
+      companyName: stock.companyName,
       open: stock.latestOpen,
       close: stock.latestPrice,
       high: stock.latestHigh,

@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 const mongoose = require("mongoose");
 const connectDB = require("../DAO/connectDB"); // Import the database connection function
-const { HistoricalStock } = require("../DAO/models/Stock"); // Import the Stock model (DB schema)
+const StockCollection = require("../DAO/models/Stock"); // Import the Stock Collection 
 
-const stocks = ["AAPL", "GOOGL", "MSFT"]; // List of stock symbols
+const stocks = [
+  { symbol: "AAPL", companyName: "Apple" },
+  { symbol: "GOOGL", companyName: "Google" },
+  { symbol: "MSFT", companyName: "Microsoft" },
+]; // List of stock symbols
 
 // Function to generate random stock data and save to MongoDB
 async function generateStockData() {
   return Promise.all(
-    stocks.map(async (symbol) => {
+    stocks.map(async ({symbol, companyName}) => {
       const stockData = [];
 
       // Generate stock data for a specific date range (e.g., last 6 months)
@@ -27,8 +31,9 @@ async function generateStockData() {
         const volume = Math.floor(Math.random() * 1000000) + 10000; // Random volume
 
         // Create a new stock entry for the current date
-        const stockEntry = new HistoricalStock({
+        const stockEntry = new StockCollection({
           symbol, // The stock symbol (e.g., AAPL)
+          companyName, // The company name (e.g., Apple)
           open,
           close,
           high,
@@ -44,7 +49,7 @@ async function generateStockData() {
 
       // Save the generated stock data in MongoDB
       try {
-        await HistoricalStock.insertMany(stockData); // Insert multiple stock records at once
+        await StockCollection.insertMany(stockData); // Insert multiple stock records at once
         console.log(`Stock data for ${symbol} inserted successfully.`);
       } catch (error) {
         console.error("Error inserting stock data:", error);
@@ -61,7 +66,7 @@ async function main() {
     await connectDB(); // Connect to MongoDB
 
     // Clear existing data
-    await HistoricalStock.deleteMany({});
+    await StockCollection.deleteMany({});
     console.log("Cleared existing stock data.");
 
     // Generate and save stock data

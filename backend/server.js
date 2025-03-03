@@ -6,10 +6,6 @@ const cors = require("cors"); // Import CORS to allow cross-origin requests
 const connectDB = require("./src/DAO/connectDB"); // Import database connection
 
 const stockRoutes = require("./src/routes/stocks"); // Import API routes
-const {
-  generateStockData,
-  stocks,
-} = require("./src/services/generateStockData"); // Import stock service
 const { fetchLatestStockData } = require("./src/services/fetchStockData"); // Import fetch stock data service
 
 const app = express(); // Initialize Express app
@@ -43,7 +39,7 @@ setInterval(async () => {
       client.send(JSON.stringify(stockData)); // Send the latest stock data to clients
     }
   });
-}, 20000);
+}, 20000); // Must Modify this to 1 second
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
