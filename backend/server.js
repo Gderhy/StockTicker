@@ -31,6 +31,7 @@ wss.on("connection", (ws) => {
 
 // Send stock updates periodically (e.g., every second)
 setInterval(async () => {
+  console.log(`[${new Date().toISOString()}] Sending stock updates to clients...`);
   // Fetch the most recent stock data or calculate updates
   const stockData = await fetchLatestStockData(); // Function to get the latest stock data
   wss.clients.forEach((client) => {
@@ -39,7 +40,7 @@ setInterval(async () => {
       client.send(JSON.stringify(stockData)); // Send the latest stock data to clients
     }
   });
-}, 1000);
+}, 5000);
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
