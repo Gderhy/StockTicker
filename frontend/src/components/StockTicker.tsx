@@ -17,19 +17,18 @@ const StockTicker: React.FC = () => {
       setStockData((prevStockData) => {
         const updatedStockData = new Map(prevStockData);
 
+        // Save previous stock data before updating
+        setPreviousStockData((prev) => {
+          const updatedPrev = new Map(prev);
+          prevStockData.forEach((value, key) => {
+            updatedPrev.set(key, value);
+          });
+          return updatedPrev;
+        });
+
+        // Update stock data
         data.forEach((stock: any) => {
           const lastUpdate = new Date().toLocaleTimeString();
-
-          // Save previous stock data before updating
-          setPreviousStockData((prev) => {
-            const updatedPrev = new Map(prev);
-            if (prev.has(stock.symbol)) {
-              updatedPrev.set(stock.symbol, prev.get(stock.symbol)!);
-            }
-            return updatedPrev;
-          });
-
-          // Update stock data
           updatedStockData.set(stock.symbol, { ...stock, lastUpdate });
         });
 
