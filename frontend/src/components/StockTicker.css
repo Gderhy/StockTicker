@@ -1,0 +1,42 @@
+/* Stock Ticker Container */
+.stock-container {
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+}
+
+/* Table Styles */
+.stock-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.stock-table th,
+.stock-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.stock-table th {
+  background-color: #f4f4f4;
+}
+
+/* Price change colors */
+.price.green,
+.change.green {
+  color: green;
+  font-weight: bold;
+}
+
+.price.red,
+.change.red {
+  color: red;
+  font-weight: bold;
+}
+
+.price.grey,
+.change.grey {
+  color: grey;
+}

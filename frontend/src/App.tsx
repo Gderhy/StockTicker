@@ -1,39 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { connectToStockService, fetchStockData } from "./services/stockService";
+// App.tsx
+import React from "react";
+import { Routes, Route } from "react-router-dom"; // Import Routes and Route
+import StockTicker from "./components/StockTicker"; // Home page component
 
 const App: React.FC = () => {
-  const [stockData, setStockData] = useState<any>(null);
-
-  // Fetch initial stock data from the API
-  useEffect(() => {
-    const getStockData = async () => {
-      const data = await fetchStockData();
-      setStockData(data);
-    };
-
-    getStockData();
-  }, []); // Runs only once when the component mounts
-
-  // Connect to the WebSocket server for real-time updates
-  useEffect(() => {
-    const onMessage = (data: any) => {
-      setStockData(data); // Update state with the incoming stock data
-    };
-
-    connectToStockService(onMessage); // Pass callback to handle real-time updates
-  }, []); // Runs only once when the component mounts
-
+  // console.log("App component rendered");
   return (
-    <div className="App">
-      <h1>Stock Data</h1>
-      <div>
-        {stockData ? (
-          <pre>{JSON.stringify(stockData, null, 2)}</pre>
-        ) : (
-          <p>Loading stock data...</p>
-        )}
-      </div>
-    </div>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <>
+            <StockTicker />
+          </>
+        }
+      />{" "}
+      {/* Main homepage route */}
+    </Routes>
   );
 };
 

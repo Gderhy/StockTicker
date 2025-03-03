@@ -6,10 +6,9 @@ let socket: WebSocket | null = null;
 
 // Function to initialize WebSocket connection
 export const connectToStockService = (onMessage: (data: any) => void) => {
-  // Only initialize the socket if it's not already connected
-  if (socket) {
+  if (socket !== null && socket.readyState === WebSocket.OPEN) {
     console.log("Already connected to WebSocket");
-    return;
+    return () => {}; // No new connection needed
   }
 
   socket = new WebSocket(STOCK_SERVER_URL);
@@ -26,10 +25,19 @@ export const connectToStockService = (onMessage: (data: any) => void) => {
 
   socket.onclose = () => {
     console.log("Disconnected from the WebSocket server");
+    socket = null; // Reset socket to allow reconnection
   };
 
   socket.onerror = (error) => {
     console.error("WebSocket error:", error);
+  };
+
+  // Return an unsubscribe function to close the connection
+  return () => {
+    if (socket) {
+      socket.close();
+      socket = null; // Reset socket
+    }
   };
 };
 
@@ -50,6 +58,7 @@ export const fetchStockData = async () => {
     return data;
   } catch (error) {
     console.error("Error fetching stock data:", error);
-    return null; // Return null in case of error to handle it properly
+    throw error;
   }
 };
+
