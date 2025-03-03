@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from "react";
+import { connectToStockService, fetchStockData } from "./services/stockService";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [stockData, setStockData] = useState<any>(null);
+
+  // Fetch initial stock data from the API
+  useEffect(() => {
+    const getStockData = async () => {
+      const data = await fetchStockData();
+      setStockData(data);
+    };
+
+    getStockData();
+  }, []); // Runs only once when the component mounts
+
+  // Connect to the WebSocket server for real-time updates
+  useEffect(() => {
+    const onMessage = (data: any) => {
+      setStockData(data); // Update state with the incoming stock data
+    };
+
+    connectToStockService(onMessage); // Pass callback to handle real-time updates
+  }, []); // Runs only once when the component mounts
 
   return (
-    <>
+    <div className="App">
+      <h1>Stock Data</h1>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {stockData ? (
+          <pre>{JSON.stringify(stockData, null, 2)}</pre>
+        ) : (
+          <p>Loading stock data...</p>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default App
+export default App;

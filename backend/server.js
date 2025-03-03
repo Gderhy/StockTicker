@@ -23,6 +23,7 @@ setInterval(async () => {
   const stockData = await generateStockData(); // Generate new stock data
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
+      console.log("Sending stock data to client...", client.url);
       // Check if WebSocket client is open
       client.send(JSON.stringify(stockData)); // Send stock data to clients
     }
