@@ -4,58 +4,66 @@ const connectDB = require("../DAO/connectDB"); // Import the database connection
 const StockCollection = require("../DAO/models/Stock"); // Import the Stock Collection
 
 const stocks = [
-  { symbol: "AAPL", companyName: "Apple" },
-  { symbol: "GOOGL", companyName: "Google" },
-  { symbol: "MSFT", companyName: "Microsoft" },
-]; // List of stock symbols
+  { symbol: "AAPL", companyName: "Apple", basePrice: 150 },
+  { symbol: "GOOGL", companyName: "Google", basePrice: 2800 },
+  { symbol: "MSFT", companyName: "Microsoft", basePrice: 300 },
+]; // List of stocks with base prices
 
-// Function to generate random stock data and save to MongoDB
+// Function to generate realistic stock data with volatility
 async function generateStockData() {
   return Promise.all(
-    stocks.map(async ({ symbol, companyName }) => {
+    stocks.map(async ({ symbol, companyName, basePrice }) => {
       const stockData = [];
-
-      // Generate stock data for a specific date range (e.g., last 6 months)
       const currentDate = new Date();
       const startDate = new Date();
       startDate.setMonth(currentDate.getMonth() - 6); // 6 months ago
 
       let currentDateCopy = new Date(startDate);
+      let lastClose = basePrice; // Start from the base price
 
       while (currentDateCopy <= currentDate) {
-        // Randomly generate stock data for each day
-        const open = (Math.random() * 100 + 100).toFixed(2); // Random opening price
-        const close = (Math.random() * 100 + 100).toFixed(2); // Random closing price
-        const high = Math.max(open, close) + Math.random() * 10; // Random high price
-        const low = Math.min(open, close) - Math.random() * 10; // Random low price
-        const volume = Math.floor(Math.random() * 1000000) + 10000; // Random volume
+        // Simulating a small market trend over time
+        const dailyChange = (Math.random() - 0.5) * 2; // -1% to +1% daily movement
+        lastClose *= 1 + dailyChange / 100; // Adjust base price gradually
 
-        // Create a new stock entry for the current date
-        const stockEntry = new StockCollection({
-          symbol, // The stock symbol (e.g., AAPL)
-          companyName, // The company name (e.g., Apple)
-          open,
-          close,
-          high,
-          low,
-          volume,
-          date: new Date(currentDateCopy), // Use a new Date to store the correct date
-          adjustedClose: null, // Optional, can be left as null
-        });
+        for (let i = 0; i < 50; i++) {
+          // Intra-day fluctuations using a smaller volatility range
+          const volatility = (Math.random() - 0.5) * 0.04; // ±2% intra-day change
+          const open = lastClose * (1 + volatility);
+          const close = lastClose * (1 + (Math.random() - 0.5) * 0.03);
+          const high = Math.max(open, close) * (1 + Math.random() * 0.02); // Up to +2% high
+          const low = Math.min(open, close) * (1 - Math.random() * 0.02); // Down to -2% low
+          const volume = Math.floor(Math.random() * 5000000) + 50000; // Random volume
 
-        stockData.push(stockEntry); // Add to array to save later
+          // Create a new stock entry for the current date
+          const stockEntry = new StockCollection({
+            symbol,
+            companyName,
+            open: open.toFixed(2),
+            close: close.toFixed(2),
+            high: high.toFixed(2),
+            low: low.toFixed(2),
+            volume,
+            date: new Date(currentDateCopy),
+            adjustedClose: close.toFixed(2),
+          });
+
+          stockData.push(stockEntry);
+          currentDateCopy.setHours(currentDateCopy.getHours() + 0.5);
+        }
+        lastClose = stockData[stockData.length - 1].close; // Update for next day's base price
         currentDateCopy.setDate(currentDateCopy.getDate() + 1); // Move to the next day
       }
 
       // Save the generated stock data in MongoDB
       try {
-        await StockCollection.insertMany(stockData); // Insert multiple stock records at once
+        await StockCollection.insertMany(stockData);
         console.log(`Stock data for ${symbol} inserted successfully.`);
       } catch (error) {
         console.error("Error inserting stock data:", error);
       }
 
-      return stockData; // Return the generated stock data for verification
+      return stockData;
     })
   );
 }
@@ -63,18 +71,17 @@ async function generateStockData() {
 // Connect to MongoDB and run the script
 async function main() {
   try {
-    await connectDB(); // Connect to MongoDB
+    await connectDB();
 
-    // Clear existing data
+    // Optional: Clear existing data
     await StockCollection.deleteMany({});
     console.log("Cleared existing stock data.");
 
-    // Generate and save stock data
     await generateStockData();
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
   } finally {
-    mongoose.connection.close(); // Close the MongoDB connection
+    mongoose.connection.close();
   }
 }
 
