@@ -1,4 +1,4 @@
-// ./src/services/fetchSpecificStockData.js
+// ./src/DAO/services/fetchSpecificStockData.js
 const StockCollection = require("../models/Stock");
 
 // Function to fetch specific stock data
