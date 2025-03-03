@@ -9,7 +9,6 @@ const connectDB = require("./src/DAO/connectDB");
 
 const stockRoutes = require("./src/routes/stocks");
 const { fetchLatestStockData } = require("./src/DAO/services/fetchStockData");
-const { fetchSpecificStockData } = require("./src/DAO/services/fetchSpecificStockData");
 
 const app = express(); // Initialize Express app
 const server = http.createServer(app); // Create HTTP server
