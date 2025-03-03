@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Line } from "react-chartjs-2"; // Using react-chartjs-2 for charts
 import {
   Chart as ChartJS,
@@ -33,6 +33,7 @@ ChartJS.register(
 );
 
 const StockDetailPage: React.FC = () => {
+  const navigator = useNavigate();
   const { symbol } = useParams<{ symbol: string }>(); // Get symbol from URL
   const [historicalData, setHistoricalData] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<string>("6months"); // Default time range
@@ -149,6 +150,9 @@ const StockDetailPage: React.FC = () => {
 
   return (
     <div className="stock-detail-container">
+      <button onClick={() => navigator(-1)} className="back-button">
+        Back
+      </button>
       <h1>{symbol} Historical Prices</h1>
       {livePrice !== null && (
         <div className="live-price">

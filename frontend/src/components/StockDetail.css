@@ -174,3 +174,16 @@
   gap: 1rem;
   margin-bottom: 20px;
 }
+
+.back-button {
+  display: block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #2962ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
