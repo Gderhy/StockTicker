@@ -7,6 +7,7 @@ const connectDB = require("./src/services/connectDB"); // Import database connec
 
 const stockRoutes = require("./src/routes/stocks"); // Import API routes
 const { generateStockData, stocks } = require("./src/services/stockServices"); // Import stock service
+const { fetchLatestStockData } = require("./src/services/fetchStockData"); // Import fetch stock data service
 
 const app = express(); // Initialize Express app
 const server = http.createServer(app); // Create HTTP server
@@ -18,14 +19,19 @@ app.use("/api/stocks", stockRoutes); // Use stock routes
 
 connectDB(); // Call the function to establish database connection
 
-// Update stock prices every second and send updates via WebSocket
+// Generate stock data once when the server starts
+generateStockData().then(() => {
+  console.log("Initial stock data for 6 months generated.");
+});
+
+// Send stock updates periodically (e.g., every second)
 setInterval(async () => {
-  const stockData = await generateStockData(); // Generate new stock data
+  // Fetch the most recent stock data or calculate updates
+  const stockData = await fetchLatestStockData(); // Function to get the latest stock data
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      console.log("Sending stock data to client...", client.url);
-      // Check if WebSocket client is open
-      client.send(JSON.stringify(stockData)); // Send stock data to clients
+      // console.log("Sending stock data to client...", client.url);
+      client.send(JSON.stringify(stockData)); // Send the latest stock data to clients
     }
   });
 }, 1000);
