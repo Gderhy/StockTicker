@@ -23,7 +23,7 @@ export const connectToStockService = (onMessage: (data: any) => void, subscribed
 
   socket.onmessage = (event) => {
     const stockData = JSON.parse(event.data);
-    console.log("Received stock data:", stockData);
+    // console.log("Received stock data:", stockData);
     onMessage(stockData); // Pass data to the callback
   };
 

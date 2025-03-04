@@ -43,25 +43,32 @@ const StockDetailPage: React.FC = () => {
 
   // Function to handle live stock price updates
   const handleLivePriceUpdate = (stockData: StockDataType[]) => {
-  if (!stockData || stockData.length === 0) return;
+    if (!stockData || stockData.length === 0) return;
 
-  const latestEntry = stockData[0];
-  const latestPrice = latestEntry.close;
-  const latestTimestamp = new Date().toISOString(); // Get current timestamp
+    const latestEntry = stockData[0];
+    const latestPrice = latestEntry.close;
+    const latestTimestamp = new Date().toISOString(); // Get current timestamp
 
-  setLivePrice((prevLivePrice) => {
-    setPreviousLivePrice(prevLivePrice); // Store previous live price
-    return latestPrice;
-  });
+    setLivePrice((prevLivePrice) => {
+      setPreviousLivePrice(prevLivePrice); // Store previous live price
+      return latestPrice;
+    });
 
-  setHistoricalData((prevData) => {
-    // Append the new data only if the timestamp is unique
-    if (prevData.length > 0 && prevData[prevData.length - 1].date === latestTimestamp) {
-      return prevData; // Avoid duplicate entries
-    }
-    return [...prevData, { date: latestTimestamp, close: latestPrice }];
-  });
-};
+    setHistoricalData((prevData) => {
+      // Append the new data only if the timestamp is unique
+      if (
+        prevData.length > 0 &&
+        prevData[prevData.length - 1].date === latestTimestamp
+      ) {
+        return prevData; // Avoid duplicate entries
+      }
+
+      const newHistoricalData = [...prevData, { date: latestTimestamp, close: latestPrice }];
+
+      console.log("New historical data:", newHistoricalData);
+      return newHistoricalData;
+    });
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -88,7 +95,7 @@ const StockDetailPage: React.FC = () => {
 
   // Format data for Chart.js
   const chartData = {
-    labels: historicalData.map((entry) => entry.date),
+    labels: historicalData.map((entry:StockDataType) => entry.date),
     datasets: [
       {
         label: "Stock Price",
@@ -181,7 +188,7 @@ const StockDetailPage: React.FC = () => {
       )}
       <div className="time-range-selector">
         <div className="time-range-options">
-        <label>Time Range: </label>
+          <label>Time Range: </label>
           <div>
             <input
               type="radio"
@@ -218,24 +225,24 @@ const StockDetailPage: React.FC = () => {
           <div>
             <input
               type="radio"
-              id="3month"
+              id="3months"
               name="timeRange"
               value="3months"
               checked={timeRange === "3months"}
               onChange={(e) => setTimeRange(e.target.value)}
             />
-            <label htmlFor="3month">3 Months</label>
+            <label htmlFor="3months">3 Months</label>
           </div>
           <div>
             <input
               type="radio"
-              id="6month"
+              id="6months"
               name="timeRange"
               value="6months"
               checked={timeRange === "6months"}
               onChange={(e) => setTimeRange(e.target.value)}
             />
-            <label htmlFor="6month">6 Months</label>
+            <label htmlFor="6months">6 Months</label>
           </div>
         </div>
       </div>
