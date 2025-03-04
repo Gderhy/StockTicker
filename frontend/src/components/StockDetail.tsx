@@ -180,8 +180,8 @@ const StockDetailPage: React.FC = () => {
         </div>
       )}
       <div className="time-range-selector">
-        <label>Time Range: </label>
         <div className="time-range-options">
+        <label>Time Range: </label>
           <div>
             <input
               type="radio"
