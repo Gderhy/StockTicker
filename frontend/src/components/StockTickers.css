@@ -90,13 +90,7 @@ td.change {
   animation: fadeIn 0.4s ease-in-out;
 }
 
-/* Header styling */
-h1 {
-  font-size: 2.2rem;
-  margin-bottom: 15px;
-  color: #ffffff;
-  text-align: center;
-}
+
 
 /* Loading message styling */
 .stock-table tbody tr td[colspan] {
@@ -119,4 +113,38 @@ h1 {
 
 .stock-table::-webkit-scrollbar-track {
   background-color: #222;
+}
+
+/* Search Bar Styling */
+.search-bar {
+  margin-left: auto;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 200px;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.search-bar input:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Flex container for h1 and search bar */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Header styling */
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 15px;
+  color: #ffffff;
+  text-align: center;
 }

@@ -14,6 +14,7 @@ const StockTicker: React.FC = () => {
     Map<string, StockDataType>
   >(new Map());
   const [isLoadingStockData, setIsLoadingStockData] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>(""); // Track the search term
 
   // Use a ref to store the WebSocket connection
   const wsConnectionRef = useRef<WebSocket | null>(null);
@@ -60,9 +61,25 @@ const StockTicker: React.FC = () => {
     return "grey";
   };
 
+  // Filter stock data based on the search term
+  const filteredStockData = Array.from(stockData.values()).filter(
+    (stock) =>
+      stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stock.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="stock-container">
-      <h1>Stock Market Updates</h1>
+      <div className="header-container">
+        <h1>Stock Market Updates</h1>
+        <input
+          type="text"
+          placeholder="Search stocks..."
+          className="search-bar"
+          value={searchTerm} // Set the value to the search term
+          onChange={(e) => setSearchTerm(e.target.value)} // Update the search term
+        />
+      </div>
       <div className="stock-table">
         <table>
           <thead>
@@ -80,7 +97,7 @@ const StockTicker: React.FC = () => {
           </thead>
           <tbody>
             {!isLoadingStockData ? (
-              Array.from(stockData.values()).map((stock) => {
+              filteredStockData.map((stock) => {
                 const previousStock = previousStockData.get(stock.symbol);
                 const previousPrice = previousStock
                   ? previousStock.close
