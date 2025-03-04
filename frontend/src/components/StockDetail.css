@@ -1,5 +1,4 @@
 .stock-detail-container {
-  /* max-width: 1200px; */
   width: 60%;
   margin: 2rem auto;
   padding: 2rem;
@@ -8,21 +7,20 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   font-family: Arial, sans-serif;
+  text-align: center;
 }
 
 .stock-detail-container h1 {
   font-size: 2rem;
   margin-bottom: 1.5rem;
-  text-align: center;
   color: #2962ff;
-  /* Blue color for the title */
 }
 
 .time-range-selector {
   margin-bottom: 2rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 1rem;
 }
 
@@ -30,29 +28,6 @@
   font-size: 1rem;
   font-weight: bold;
   color: #888;
-  /* Light gray color */
-}
-
-.time-range-selector select {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  background-color: #333;
-  color: #ffffff;
-  border: 1px solid #444;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.time-range-selector select:hover {
-  background-color: #444;
-  border-color: #555;
-}
-
-.time-range-selector select:focus {
-  outline: none;
-  border-color: #2962ff;
-  box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.3);
 }
 
 .chart-container {
@@ -62,7 +37,9 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   height: 500px;
-  /* Fixed height for the chart */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .loading-spinner {
@@ -92,32 +69,26 @@
   }
 }
 
-/* Radio button container */
 .time-range-options {
   display: flex;
-  justify-content: space-around;
-  gap: 2rem;
+  justify-content: center;
   flex-wrap: wrap;
-  /* Ensures buttons wrap on smaller screens */
+  gap: 1rem;
 }
 
-/* Styling the individual radio button input and label */
 .time-range-options div {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Hide the default radio button */
 .time-range-options input[type="radio"] {
   display: none;
 }
 
-/* Custom radio button appearance */
 .time-range-options input[type="radio"]+label {
   position: relative;
   padding-left: 30px;
-  /* Create space for the custom radio button */
   cursor: pointer;
   font-size: 1rem;
   color: #888;
@@ -125,7 +96,6 @@
   transition: color 0.3s ease;
 }
 
-/* Custom radio button circle */
 .time-range-options input[type="radio"]+label::before {
   content: '';
   position: absolute;
@@ -136,34 +106,26 @@
   height: 18px;
   border-radius: 50%;
   background-color: #444;
-  /* Dark gray color */
   border: 2px solid #555;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Change the color of the radio button when selected */
 .time-range-options input[type="radio"]:checked+label::before {
   background-color: #2962ff;
-  /* Blue color when checked */
   border-color: #2962ff;
 }
 
-/* Change label color when selected */
 .time-range-options input[type="radio"]:checked+label {
   color: #2962ff;
-  /* Blue text color when checked */
 }
 
-/* Hover effect for the radio button */
 .time-range-options input[type="radio"]:hover+label::before {
   background-color: #555;
-  /* Lighter gray on hover */
   border-color: #666;
 }
 
 .time-range-options input[type="radio"]:hover+label {
   color: #aaa;
-  /* Lighter gray text on hover */
 }
 
 .live-price {
@@ -175,9 +137,16 @@
   margin-bottom: 20px;
 }
 
+.back-button-container {
+  display: flex;
+  justify-content: left;
+  width: 100%;
+}
+
 .back-button {
-  display: block;
-  margin-top: 1rem;
+  display: inline-block;
+  left: 0;
+  margin-bottom: 1rem;
   padding: 0.5rem 1rem;
   background-color: #2962ff;
   color: #ffffff;
@@ -186,4 +155,8 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #1e50d1;
 }

@@ -150,19 +150,26 @@ const StockDetailPage: React.FC = () => {
 
   return (
     <div className="stock-detail-container">
-      <button onClick={() => navigator(-1)} className="back-button">
-        Back
-      </button>
+      <div className="back-button-container">
+        <button onClick={() => navigator("/")} className="back-button">
+          Back
+        </button>
+      </div>
       <h1>{symbol} Historical Prices</h1>
       {livePrice !== null && (
         <div className="live-price">
-            <h2 
-            style={{ 
-              color: livePrice > (previousLivePrice ?? livePrice) ? "green" : livePrice < (previousLivePrice ?? livePrice) ? "red" : "white" 
+          <h2
+            style={{
+              color:
+                livePrice > (previousLivePrice ?? livePrice)
+                  ? "green"
+                  : livePrice < (previousLivePrice ?? livePrice)
+                  ? "red"
+                  : "white",
             }}
-            >
+          >
             Live Price: ${livePrice.toFixed(2)}
-            </h2>
+          </h2>
           {/* Display live price */}
         </div>
       )}
