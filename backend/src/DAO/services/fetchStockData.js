@@ -24,7 +24,7 @@ async function fetchLatestStockData() {
     // Loop through stocks and decide whether to update
     const updatedStockData = await Promise.all(
       latestStockData.map(async (stock) => {
-        if (Math.random() < 0.2) {
+        if (Math.random() < 0.33) {
           // 20% chance to update
           // console.log(`Updating stock data for ${stock._id}...`);
           const newStock = generateNewStockValues(stock);
