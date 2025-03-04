@@ -43,19 +43,25 @@ const StockDetailPage: React.FC = () => {
 
   // Function to handle live stock price updates
   const handleLivePriceUpdate = (stockData: StockDataType[]) => {
-    if (!stockData) return;
+  if (!stockData || stockData.length === 0) return;
 
-    if (stockData.length > 0) {
-      const latestPrice = stockData[0].close;
-      setLivePrice(prevLivePrice => {
+  const latestEntry = stockData[0];
+  const latestPrice = latestEntry.close;
+  const latestTimestamp = new Date().toISOString(); // Get current timestamp
 
-        // Save previous live price
-        setPreviousLivePrice(prevLivePrice);
-        
+  setLivePrice((prevLivePrice) => {
+    setPreviousLivePrice(prevLivePrice); // Store previous live price
+    return latestPrice;
+  });
 
-        return latestPrice});
+  setHistoricalData((prevData) => {
+    // Append the new data only if the timestamp is unique
+    if (prevData.length > 0 && prevData[prevData.length - 1].date === latestTimestamp) {
+      return prevData; // Avoid duplicate entries
     }
-  };
+    return [...prevData, { date: latestTimestamp, close: latestPrice }];
+  });
+};
 
   useEffect(() => {
     const loadData = async () => {

@@ -122,67 +122,6 @@ const StockTicker: React.FC = () => {
                 <td colSpan={9}>Loading stock data...</td>
               </tr>
             )}
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr><td></td></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
           </tbody>
         </table>
       </div>

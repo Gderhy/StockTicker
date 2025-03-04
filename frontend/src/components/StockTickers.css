@@ -2,6 +2,7 @@
 .stock-container {
   width: 90%;
   max-width: 1200px;
+  min-height: 80vh;
   margin: auto;
   padding: 20px;
   background-color: #121212;
