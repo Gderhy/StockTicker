@@ -93,6 +93,25 @@ const StockDetailPage: React.FC = () => {
     };
   }, []);
 
+  const getUnit = () => {
+    switch (timeRange) {
+      case "1hour":
+        return "minute";
+      case "1day":
+        return "day";
+      case "1week":
+        return "week";
+      case "1month":
+        return "month";
+      case "3months":
+        return "month";
+      case "6months":
+        return "month";
+      default:
+        return "month";
+    }
+  }
+
   // Format data for Chart.js
   const chartData = {
     labels: historicalData.map((entry:StockDataType) => entry.date),
@@ -117,7 +136,7 @@ const StockDetailPage: React.FC = () => {
       x: {
         type: "time", // Use time scale for the x-axis
         time: {
-          unit: timeRange === "1day" ? "hour" : "day", // Adjust unit based on range
+          unit: getUnit(), // Adjust unit based on range
           displayFormats: {
             day: "MMM d", // Format as "Jan 1", "Feb 2", etc.
             hour: "ha", // Format as "12PM", "1PM", etc.
