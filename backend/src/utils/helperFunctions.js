@@ -29,6 +29,9 @@ const filterDataByRange = (data, range) => {
   let startDate;
 
   switch (range) {
+    case "1hour":
+      startDate = new Date(now.setHours(now.getHours() - 1));
+      break;
     case "1day":
       startDate = new Date(now.setDate(now.getDate() - 1));
       break;

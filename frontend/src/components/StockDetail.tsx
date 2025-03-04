@@ -192,6 +192,17 @@ const StockDetailPage: React.FC = () => {
           <div>
             <input
               type="radio"
+              id="1hour"
+              name="timeRange"
+              value="1hour"
+              checked={timeRange === "1hour"}
+              onChange={(e) => setTimeRange(e.target.value)}
+            />
+            <label htmlFor="1hour">1 Hour</label>
+          </div>
+          <div>
+            <input
+              type="radio"
               id="1day"
               name="timeRange"
               value="1day"
