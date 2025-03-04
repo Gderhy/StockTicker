@@ -16,10 +16,10 @@ const StockTicker: React.FC = () => {
   const [isLoadingStockData, setIsLoadingStockData] = useState<boolean>(true);
 
   // Use a ref to store the WebSocket connection
-  const wsConnection = useRef<WebSocket | null>(null);
+  const wsConnectionRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const unsubscribe = connectToStockService((data: any) => {
+    const webSocketConnection = connectToStockService((data: any) => {
       setStockData((prevStockData) => {
         const updatedStockData = new Map(prevStockData);
 
@@ -44,11 +44,11 @@ const StockTicker: React.FC = () => {
       setIsLoadingStockData(false);
     });
 
-    wsConnection.current = unsubscribe;
+    wsConnectionRef.current = webSocketConnection;
 
     return () => {
-      if (wsConnection.current) {
-        wsConnection.current.close(); // Close the WebSocket connection
+      if (wsConnectionRef.current) {
+        wsConnectionRef.current.close(); // Close the WebSocket connection
         console.log("WebSocket connection closed.");
       }
     };
