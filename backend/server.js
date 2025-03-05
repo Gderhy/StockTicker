@@ -62,17 +62,17 @@ setInterval(async () => {
   // console.log(`[${new Date().toISOString()}] Sending stock updates to clients...`);
 
   // Fetch the most recent stock data or calculate updates
-  const allStockData = await fetchLatestStockData(); // Function to get the latest stock data
+  const latestStockData = await fetchLatestStockData(); // Function to get the latest stock data
+  
   wss.clients.forEach(async (client) => {
     if (client.readyState === WebSocket.OPEN) {
-
       if (client.subscribedStock === "all") {
         // If on homepage -- if client is subscribed to all stocks
-        client.send(JSON.stringify(allStockData)); // Send the latest stock data to clients
+        client.send(JSON.stringify(latestStockData)); // Send the latest stock data to clients
       } else if (client.subscribedStock !== null) {
         // If client is subscribed to a specific stock
         console.log(`Client ${client.clientId} is subscribed to ${client.subscribedStock}`);
-        const specificStockData = allStockData.filter(
+        const specificStockData = latestStockData.filter(
           (stock) => stock.symbol === client.subscribedStock
         );
         client.send(JSON.stringify(specificStockData)); // Send the specific stock data to clients
