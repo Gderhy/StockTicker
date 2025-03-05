@@ -1,18 +1,52 @@
 #!/usr/bin/env node
 const mongoose = require("mongoose");
-const connectDB = require("../DAO/connectDB"); // Import the database connection function
-const StockCollection = require("../DAO/models/Stock"); // Import the Stock Collection
+const connectDB = require("../DAO/connectDB"); 
+const getStockModel = require("../DAO/models/Stock"); 
+const CompanyModel = require("../DAO/models/Company"); // 
 
 const stocks = [
-  { symbol: "AAPL", companyName: "Apple", basePrice: 150 },
-  { symbol: "GOOGL", companyName: "Google", basePrice: 2800 },
-  { symbol: "MSFT", companyName: "Microsoft", basePrice: 300 },
-]; // List of stocks with base prices
+  {
+    symbol: "AAPL",
+    companyName: "Apple",
+    foundingDate: new Date(),
+    basePrice: 150,
+  },
+  {
+    symbol: "GOOGL",
+    companyName: "Google",
+    foundingDate: new Date(),
+    basePrice: 2800,
+  },
+  {
+    symbol: "MSFT",
+    companyName: "Microsoft",
+    foundingDate: new Date(),
+    basePrice: 300,
+  },
+  {
+    symbol: "VPAY",
+    companyName: "Valpay",
+    foundingDate: new Date(),
+    basePrice: 5000,
+  },
+]; // List of stocks with base prices 
 
 // Function to generate realistic stock data with volatility
-async function generateStockData() {
-  return Promise.all(
-    stocks.map(async ({ symbol, companyName, basePrice }) => {
+async function generateStockData(StockCollections) {
+  await Promise.all(
+    stocks.map(async ({ symbol, companyName, basePrice, foundingDate }, index) => {
+      // Save the Company data in MongoDB
+      try{
+        const CompanyEntry = new CompanyModel({ name: companyName, symbol: symbol, foundingDate});
+        await CompanyEntry.save();
+        console.log(`Company data for ${symbol} inserted successfully.`);
+      } catch (error) {
+        console.error("Error inserting company data:", error);
+      }
+
+      // Get the stock model for the current symbol
+      const StockModel = StockCollections[index];
+
       const stockData = [];
       const currentDate = new Date();
       const startDate = new Date();
@@ -26,6 +60,7 @@ async function generateStockData() {
         const dailyChange = (Math.random() - 0.5) * 2; // -1% to +1% daily movement
         lastClose *= 1 + dailyChange / 100; // Adjust base price gradually
 
+        // Generate intra-day data for each day (50 data points per day)
         for (let i = 0; i < 50; i++) {
           // Intra-day fluctuations using a smaller volatility range
           const volatility = (Math.random() - 0.5) * 0.04; // ±2% intra-day change
@@ -35,29 +70,29 @@ async function generateStockData() {
           const low = Math.min(open, close) * (1 - Math.random() * 0.02); // Down to -2% low
           const volume = Math.floor(Math.random() * 5000000) + 50000; // Random volume
 
-          // Create a new stock entry for the current date
-          const stockEntry = new StockCollection({
-            symbol,
-            companyName,
-            open: open.toFixed(2),
-            close: close.toFixed(2),
-            high: high.toFixed(2),
-            low: low.toFixed(2),
-            volume,
+          const stockEntry = new StockModel({
             date: new Date(currentDateCopy),
-            adjustedClose: close.toFixed(2),
-          });
+            open,
+            high,
+            low,
+            close,
+            volume,
+          });          
 
           stockData.push(stockEntry);
-          currentDateCopy.setHours(currentDateCopy.getHours() + 0.5);
+          currentDateCopy.setHours(currentDateCopy.getHours() + 0.5); // 30-minute intervals
         }
-        lastClose = stockData[stockData.length - 1].close; // Update for next day's base price
+
+        if (stockData.length > 0) {
+          lastClose = stockData[stockData.length - 1].close;
+        }
+
         currentDateCopy.setDate(currentDateCopy.getDate() + 1); // Move to the next day
       }
 
       // Save the generated stock data in MongoDB
       try {
-        await StockCollection.insertMany(stockData);
+        await StockModel.insertMany(stockData);
         console.log(`Stock data for ${symbol} inserted successfully.`);
       } catch (error) {
         console.error("Error inserting stock data:", error);
@@ -74,10 +109,22 @@ async function main() {
     await connectDB();
 
     // Optional: Clear existing data
-    await StockCollection.deleteMany({});
-    console.log("Cleared existing stock data.");
+    await CompanyModel.deleteMany({});
+    console.log("Cleared existing Company data.");
 
-    await generateStockData();
+    // Get the stock model for each symbol
+    const StockCollections = stocks.map(({ symbol }) => getStockModel(symbol));
+
+    await Promise.all(
+      StockCollections.map(async (StockCollection) => {
+        await StockCollection.deleteMany({});
+        console.log(
+          `Cleared existing stock data for ${StockCollection.collection.name}.`
+        );
+      })
+    );
+
+    await generateStockData(StockCollections);
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
   } finally {
