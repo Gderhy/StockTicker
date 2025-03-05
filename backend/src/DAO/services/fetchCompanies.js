@@ -1,4 +1,4 @@
-import Company from "../models/Company";
+const Company = require("../models/Company"); 
 
 // Function to fetch all companies
 async function fetchCompanies() {
@@ -15,7 +15,7 @@ async function fetchCompanySymbols() {
   // Returns an array of company symbols
   try {
     const symbols = await Company.find().select("symbol");
-    return symbols;
+    return symbols.map((company) => company.symbol);
   } catch (error) {
     console.error("Error fetching companies:", error);
     return [];
