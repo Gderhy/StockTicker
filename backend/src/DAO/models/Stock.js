@@ -13,5 +13,10 @@ const getStockModel = (symbol) => {
   return mongoose.model(symbol, stockSchema);
 };
 
+// Create a Company model for each passed company symbol
+const getStockModels = (companySymbols) => {
+  return companySymbols.map((symbol) => getStockModel(symbol));
+}
+
 // Export the models
-module.exports = getStockModel;
+module.exports = {getStockModel, getStockModels};
