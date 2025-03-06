@@ -61,6 +61,16 @@ const StockTicker: React.FC = () => {
       stock.companyName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const formatDate = (date: Date) => {
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    });
+  };
+
   return (
     <div className="stock-container">
       <div className="header-container">
@@ -106,7 +116,7 @@ const StockTicker: React.FC = () => {
                     onClick={() => navigate(`/stocks/${stock.symbol}`)}
                     style={{ cursor: "pointer" }}
                   >
-                    <td>{stock.date.toISOString()}</td>
+                    <td>{formatDate(stock.date)}</td>
                     <td>{stock.symbol}</td>
                     <td>{stock.companyName}</td>
                     <td>${stock.open.toFixed(2)}</td>
