@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Line } from "react-chartjs-2"; // Using react-chartjs-2 for charts
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,13 +12,14 @@ import {
   Legend,
   TimeScale,
 } from "chart.js";
-import "chartjs-adapter-date-fns"; // For date formatting
+import "chartjs-adapter-date-fns";
 import {
   fetchHistoricalData,
   connectToStockService,
 } from "../services/stockService";
-import "./StockDetail.css"; // Import styles
+import "./StockDetail.css";
 import { StockDataType } from "../types";
+import { format } from "date-fns";
 
 // Register Chart.js components
 ChartJS.register(
@@ -34,16 +35,15 @@ ChartJS.register(
 
 const StockDetailPage: React.FC = () => {
   const navigator = useNavigate();
-  const { symbol } = useParams<{ symbol: string }>(); // Get stock symbol from URL
+  const { symbol } = useParams<{ symbol: string }>();
 
   const [historicalData, setHistoricalData] = useState<StockDataType[]>([]);
-  const [timeRange, setTimeRange] = useState<string>("6months"); // Default time range
+  const [timeRange, setTimeRange] = useState<string>("6months");
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [stockData, setStockData] = useState<StockDataType | null>(null); // ✅ Live stock data object
-  const [previousStockData, setPreviousStockData] =
-    useState<StockDataType | null>(null); // ✅ Store previous live stock data
+  const [stockData, setStockData] = useState<StockDataType | null>(null);
+  const [previousStockData, setPreviousStockData] = useState<StockDataType | null>(null);
 
-  // Function to handle live stock price updates
+  // Handle live stock price updates
   const handleLivePriceUpdate = (
     updatedStockData: Record<string, StockDataType>
   ) => {
@@ -52,7 +52,7 @@ const StockDetailPage: React.FC = () => {
     const latestStock = updatedStockData[symbol];
 
     setStockData((prevStock) => {
-      setPreviousStockData(prevStock); // Store previous stock data
+      setPreviousStockData(prevStock);
       return latestStock;
     });
 
@@ -63,16 +63,17 @@ const StockDetailPage: React.FC = () => {
         return prevData; // Avoid duplicate timestamps
       }
 
-      return [...prevData.slice(1), latestStock]; // ✅ Replace the oldest record with the latest, this will not make the chart grow indefinitely
+      // ✅ Replace the oldest record with the latest, this will not make the chart grow indefinitely
+      return [...prevData.slice(1), latestStock];
     });
   };
 
-  // Fetch historical stock data on mount or when timeRange changes
+  // Fetch historical data when symbol or timeRange changes
   useEffect(() => {
     const loadData = async () => {
       if (symbol) {
         setIsLoading(true);
-        setHistoricalData([]); // ✅ Clear previous data before fetching new
+        setHistoricalData([]);
         try {
           const data = await fetchHistoricalData(symbol, timeRange);
           setHistoricalData(data);
@@ -85,8 +86,7 @@ const StockDetailPage: React.FC = () => {
     loadData();
   }, [symbol, timeRange]);
 
-
-  // Establish WebSocket connection for live updates
+  // WebSocket for live updates
   useEffect(() => {
     if (!symbol) return;
 
@@ -96,32 +96,28 @@ const StockDetailPage: React.FC = () => {
     );
 
     return () => {
-      if (webSocketConnection) webSocketConnection.close(); // ✅ Close WebSocket on component unmount
+      if (webSocketConnection) webSocketConnection.close();
     };
   }, [symbol]);
 
-  const getUnit = () => {
-  switch (timeRange) {
-    case "1hour":
-      return "minute"; // ✅ Smallest unit
-    case "1day":
-      return "hour";
-    case "1week":
-      return "day";
-    case "1month":
-      return "week";
-    case "3months":
-    case "6months":
-      return "month"; // ✅ Ensures stepSize isn't too small
-    default:
-      return "month";
-  }
-};
-
-
+  // Format date for Chart.js
+ const formatDate = (date: Date) => {
+   switch (timeRange) {
+     case "1hour":
+     case "1day":
+       return format(date, "HH:mm"); // 24-hour format, e.g., "14:30"
+     case "1week":
+       return format(date, "MMM d"); // e.g., "Oct 5"
+     case "1month":
+     case "3months":
+     case "6months":
+     default:
+       return format(date, "MMM d, yyyy"); // e.g., "Oct 5, 2023"
+   }
+ };
   // Format data for Chart.js
   const chartData = {
-    labels: historicalData.map((entry) => entry.date),
+    labels: historicalData.map((entry) => formatDate(entry.date)),
     datasets: [
       {
         label: "Stock Price",
@@ -131,37 +127,10 @@ const StockDetailPage: React.FC = () => {
         borderWidth: 2,
         pointRadius: 0,
         fill: true,
+        tension: 0.3,
       },
     ],
   };
-
-  // Chart options
-  const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    x: {
-      type: "time",
-      time: {
-        unit: getUnit(), // ✅ Uses updated function
-        stepSize: "auto", // ✅ Let Chart.js adjust step size
-        displayFormats: {
-          minute: "HH:mm",
-          hour: "MMM d, h a",
-          day: "MMM d",
-          week: "MMM d",
-          month: "MMM yyyy",
-        },
-      },
-      ticks: { color: "#888" },
-      grid: { display: false },
-    },
-    y: {
-      grid: { color: "#444" },
-      ticks: { color: "#888" },
-    },
-  },
-};
 
   return (
     <div className="stock-detail-container">
@@ -170,20 +139,20 @@ const StockDetailPage: React.FC = () => {
           Back
         </button>
       </div>
+
       <h1>{symbol} Historical Prices</h1>
 
       {stockData && (
         <div className="live-price">
           <h2
-            style={{
-              color:
-                stockData.close > (previousStockData?.close ?? stockData.close)
-                  ? "green"
-                  : stockData.close <
-                    (previousStockData?.close ?? stockData.close)
-                  ? "red"
-                  : "white",
-            }}
+            className={
+              stockData.close > (previousStockData?.close ?? stockData.close)
+                ? "price-green"
+                : stockData.close <
+                  (previousStockData?.close ?? stockData.close)
+                ? "price-red"
+                : "price-neutral"
+            }
           >
             Live Price: ${stockData.close.toFixed(2)}
           </h2>
@@ -216,7 +185,10 @@ const StockDetailPage: React.FC = () => {
         {isLoading ? (
           <div className="loading-spinner"></div>
         ) : (
-          <Line data={chartData} options={options as any} />
+          <Line
+            data={chartData}
+            // options={getOptions()}
+          />
         )}
       </div>
     </div>
