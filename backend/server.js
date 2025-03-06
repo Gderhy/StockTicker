@@ -39,8 +39,7 @@ wss.on("connection", (ws, req) => {
       // Check if the message is a subscription request
       if (data.action === "subscribe" && data.symbol) {
         // Add stock to client's subscribed stocks list
-        if (!ws.subscribedStocks.includes(data.symbol))
-          ws.subscribedStocks.push(data.symbol);
+        ws.subscribedStocks = [data.symbol];
         console.log(`${clientId} subscribed to ${data.symbol}`);
       } else if (data.action === "unsubscribe" && data.symbol) {
         // Remove stock from client's subscribed stocks list
@@ -90,8 +89,9 @@ setInterval(async () => {
       );
 
       stockDataToSend = client.subscribedStocks.reduce((filtered, symbol) => {
-        if (latestStockData.has(symbol)) {
-          filtered[symbol] = latestStockData.get(symbol);
+        if (symbol in latestStockData) {
+          // ✅ Correct way to check if key exists in an object
+          filtered[symbol] = latestStockData[symbol]; // ✅ Access value directly
         }
         return filtered;
       }, {});
