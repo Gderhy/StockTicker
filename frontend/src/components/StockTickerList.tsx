@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { connectToStockService } from "../services/stockService";
-import "./StockTickers.css"; // Import styles
+import "./StockTickerList.css"; // Import styles
 import { StockDataType } from "../types";
 import { useNavigate } from "react-router-dom";
 
