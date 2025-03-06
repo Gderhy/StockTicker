@@ -57,13 +57,13 @@ const StockDetailPage: React.FC = () => {
     });
 
     setHistoricalData((prevData) => {
-      if (
-        prevData.length > 0 &&
-        prevData[prevData.length - 1].date === latestStock.date
-      ) {
+      if (prevData.length === 0) return [latestStock]; // Initialize if empty
+
+      if (prevData[prevData.length - 1].date === latestStock.date) {
         return prevData; // Avoid duplicate timestamps
       }
-      return [...prevData, latestStock]; // ✅ Append new stock data
+
+      return [...prevData.slice(1), latestStock]; // ✅ Replace the oldest record with the latest, this will not make the chart grow indefinitely
     });
   };
 
@@ -85,6 +85,7 @@ const StockDetailPage: React.FC = () => {
     loadData();
   }, [symbol, timeRange]);
 
+
   // Establish WebSocket connection for live updates
   useEffect(() => {
     if (!symbol) return;
@@ -100,20 +101,23 @@ const StockDetailPage: React.FC = () => {
   }, [symbol]);
 
   const getUnit = () => {
-    switch (timeRange) {
-      case "1hour":
-        return "minute";
-      case "1day":
-        return "day";
-      case "1week":
-        return "week";
-      case "1month":
-      case "3months":
-      case "6months":
-      default:
-        return "month";
-    }
-  };
+  switch (timeRange) {
+    case "1hour":
+      return "minute"; // ✅ Smallest unit
+    case "1day":
+      return "hour";
+    case "1week":
+      return "day";
+    case "1month":
+      return "week";
+    case "3months":
+    case "6months":
+      return "month"; // ✅ Ensures stepSize isn't too small
+    default:
+      return "month";
+  }
+};
+
 
   // Format data for Chart.js
   const chartData = {
