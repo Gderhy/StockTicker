@@ -1,4 +1,4 @@
-const Company = require("../models/Company"); 
+const Company = require("../DAO/models/Company"); 
 
 // Function to fetch all companies
 async function fetchCompanies() {

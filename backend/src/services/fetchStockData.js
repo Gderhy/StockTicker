@@ -1,6 +1,6 @@
-const { getStockModel } = require("../models/Stock");
+const { getStockModel } = require("../DAO/models/Stock");
 const { fetchCompanySymbols } = require("./fetchCompanies");
-const { generateNewStockValues } = require("../../utils/helperFunctions");
+const { generateNewStockValues } = require("../utils/helperFunctions");
 
 /**
  * Fetch the latest stock data, using a stock data map for efficiency.

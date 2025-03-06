@@ -1,7 +1,7 @@
 // ./src/routes/stocks.js
 
 const express = require("express");
-const { fetchSpecificStockData } = require("../DAO/services/fetchSpecificStockData");
+const { fetchSpecificStockData } = require("../services/fetchSpecificStockData");
 const { filterDataByRange } = require("../utils/helperFunctions");
 
 const router = express.Router();
