@@ -1,11 +1,10 @@
 export interface StockDataType {
   symbol: string;
-  close: number;
   companyName: string;
-  high: number;
-  lastUpdate: string;
-  low: number;
+  close: number;
   open: number;
+  high: number;
+  low: number;
   volume: number;
   date: string;
 }

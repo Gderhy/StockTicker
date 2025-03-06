@@ -113,7 +113,7 @@ const StockTicker: React.FC = () => {
                     onClick={() => navigate(`/stocks/${stock.symbol}`)}
                     style={{ cursor: "pointer" }}
                   >
-                    <td>{stock.lastUpdate}</td>
+                    <td>{stock.date}</td>
                     <td>{stock.symbol}</td>
                     <td>{stock.companyName}</td>
                     <td>${stock.open.toFixed(2)}</td>

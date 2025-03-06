@@ -8,7 +8,7 @@ const cors = require("cors");
 const { connectDB, disconnectDB } = require("./src/db/mongoDb");
 
 const stockRoutes = require("./src/routes/stocks");
-const { fetchLatestStockData } = require("./src/services/fetchStockData");
+const { fetchLatestStockData } = require("./src/services/fetchLatestStockData");
 
 const app = express(); // Initialize Express app
 const server = http.createServer(app); // Create HTTP server
@@ -28,7 +28,7 @@ wss.on("connection", (ws, req) => {
   ws.clientId = clientId;
   console.log(`Client connected: ${clientId}`);
 
-  ws.subscribedStock = "all"; // Initialize the subscribed stock for the client to "all"
+  ws.subscribedStocks = ["all"]; // Array of subscribed stocks (default: all)
 
   // Listen for incoming messages (e.g., subscribe to specific stock)
   ws.on("message", (message) => {
@@ -39,8 +39,12 @@ wss.on("connection", (ws, req) => {
       // Check if the message is a subscription request
       if (data.action === "subscribe" && data.symbol) {
         // Add stock to client's subscribed stocks list
-        ws.subscribedStock = data.symbol;
+        ws.subscribedStocks.push(data.symbol);
         console.log(`${clientId} subscribed to ${data.symbol}`);
+      } else if (data.action === "unsubscribe" && data.symbol) {
+        // Remove stock from client's subscribed stocks list
+        ws.subscribedStocks.remove(data.symbol);
+        console.log(`${clientId} unsubscribed from ${data.symbol}`);
       }
     } catch (error) {
       console.error(`Error processing message from ${clientId}:`, error);
@@ -60,31 +64,46 @@ wss.on("connection", (ws, req) => {
 
 const latestStockData = new Map(); // Store the latest stock data
 
-// Send stock updates periodically (e.g., every second)
+// Send stock updates to WebSocket clients every second
 setInterval(async () => {
-  // Fetch the latest stock data
+  // Fetch the latest stock data and update the map
   await fetchLatestStockData(latestStockData);
 
+  // Iterate through all connected WebSocket clients
   wss.clients.forEach(async (client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      if (client.subscribedStock === "all") {
-        // If on homepage -- if client is subscribed to all stocks
-        client.send(JSON.stringify(latestStockData.values())); // Send the latest stock data to clients
-      } else if (client.subscribedStock !== null) {
-        // If client is subscribed to a specific stock
-        console.log(
-          `Client ${client.clientId} is subscribed to ${client.subscribedStock}`
-        );
-        const specificStockData = latestStockData.filter(
-          (stock) => stock.symbol === client.subscribedStock
-        );
-        client.send(JSON.stringify(specificStockData)); // Send the specific stock data to clients
-      } else {
-        console.log(`Client ${client.clientId} is not connected.`);
-      }
+    if (client.readyState !== WebSocket.OPEN) return; // Skip disconnected clients
+
+    // Determine which stock data to send based on the client's subscription
+    let stockDataToSend;
+
+    if (client.subscribedStocks.includes("all")) {
+      // Client is subscribed to all stocks (e.g., homepage view)
+      stockDataToSend = latestStockData
+    } else if (client.subscribedStocks.length > 0) {
+      // Client is subscribed to specific stocks
+      console.log(`Client ${client.clientId} is subscribed to: ${client.subscribedStocks}`);
+
+      stockDataToSend = client.subscribedStocks.reduce(
+        (filtered, symbol) => {
+          if (latestStockData.has(symbol)) {
+            filtered[symbol] = latestStockData.get(symbol);
+          }
+          return filtered;
+        },
+        {}
+      );
+
+    } else {
+      console.log(`Client ${client.clientId} is connected but not subscribed to any stocks.`);
+      return; // Skip sending data to unsubscribed clients
     }
+
+    // Send the stock data to the client
+    client.send(JSON.stringify(stockDataToSend));
+    console.log(stockDataToSend);
   });
 }, 1000);
+
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
