@@ -137,43 +137,31 @@ const StockDetailPage: React.FC = () => {
 
   // Chart options
   const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        type: "time",
-        time: {
-          unit: getUnit(),
-          displayFormats: {
-            day: "MMM d",
-            hour: "ha",
-          },
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    x: {
+      type: "time",
+      time: {
+        unit: getUnit(), // ✅ Uses updated function
+        stepSize: "auto", // ✅ Let Chart.js adjust step size
+        displayFormats: {
+          minute: "HH:mm",
+          hour: "MMM d, h a",
+          day: "MMM d",
+          week: "MMM d",
+          month: "MMM yyyy",
         },
-        grid: { display: false },
-        ticks: { color: "#888" },
       },
-      y: {
-        grid: { color: "#444" },
-        ticks: { color: "#888" },
-      },
+      ticks: { color: "#888" },
+      grid: { display: false },
     },
-    plugins: {
-      legend: { display: false },
-      title: {
-        display: true,
-        text: `${symbol} Stock Price`,
-        color: "#FFF",
-        font: { size: 18 },
-      },
-      tooltip: {
-        backgroundColor: "#333",
-        titleColor: "#FFF",
-        bodyColor: "#FFF",
-        borderColor: "#444",
-        borderWidth: 1,
-      },
+    y: {
+      grid: { color: "#444" },
+      ticks: { color: "#888" },
     },
-  };
+  },
+};
 
   return (
     <div className="stock-detail-container">
