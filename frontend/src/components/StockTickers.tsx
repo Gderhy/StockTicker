@@ -28,7 +28,7 @@ const StockTicker: React.FC = () => {
 
           // Update stock data with new values from WebSocket
           Object.entries(data).forEach(([symbol, stock]) => {
-            updatedStockData[symbol] = stock;
+            updatedStockData[symbol] = {...stock, date: new Date(stock.date) }; // ✅ Convert date string to Date object
           });
 
           return updatedStockData; // ✅ Return an updated object
@@ -81,7 +81,7 @@ const StockTicker: React.FC = () => {
               <th>Symbol</th>
               <th>Company</th>
               <th>Open</th>
-              <th>Close</th>
+              <th>Price</th>
               <th>High</th>
               <th>Low</th>
               <th>Volume</th>
@@ -106,9 +106,9 @@ const StockTicker: React.FC = () => {
                     onClick={() => navigate(`/stocks/${stock.symbol}`)}
                     style={{ cursor: "pointer" }}
                   >
-                    <td>{stock.date}</td>
-                    <td>{stock?.symbol}</td>
-                    <td>{stock?.companyName}</td>
+                    <td>{stock.date.toISOString()}</td>
+                    <td>{stock.symbol}</td>
+                    <td>{stock.companyName}</td>
                     <td>${stock.open.toFixed(2)}</td>
                     <td className={`price ${changeColor}`}>
                       ${stock.close.toFixed(2)}

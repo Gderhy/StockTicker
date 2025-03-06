@@ -6,7 +6,7 @@ export interface StockDataType {
   high: number;
   low: number;
   volume: number;
-  date: string;
+  date: Date;
 }
 
 export type StockDataRange = "1day" | "1week" | "1month" | "3months" | "1year" | "5years" | "10years" | "all"; 
