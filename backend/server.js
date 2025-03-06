@@ -65,6 +65,7 @@ wss.on("connection", (ws, req) => {
   });
 });
 
+// TODO: Change to a simple object
 const latestStockData = new Map(); // Store the latest stock data
 
 // Send stock updates to WebSocket clients every second
@@ -110,7 +111,7 @@ setInterval(async () => {
       )}:`,
       stockDataToSend
     );
-    client.send(JSON.stringify(stockDataToSend));
+    client.send(JSON.stringify(Object.fromEntries(latestStockData))); // ✅ Converts Map to Object
   });
 }, 1000);
 
