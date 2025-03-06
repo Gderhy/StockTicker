@@ -5,10 +5,10 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const cors = require("cors");
-const connectDB = require("./src/DAO/connectDB");
+const { connectDB, disconnectDB } = require("./src/DAO/mongoDb");
 
 const stockRoutes = require("./src/routes/stocks");
-const { fetchLatestStockData } = require("./src/DAO/services/fetchStockData");
+const { fetchLatestStockData } = require("./src/services/fetchStockData");
 
 const app = express(); // Initialize Express app
 const server = http.createServer(app); // Create HTTP server
@@ -16,6 +16,8 @@ const wss = new WebSocket.Server({ server }); // Create WebSocket server
 
 app.use(cors()); // Enable CORS for cross-origin requests
 app.use(express.json()); // Enable JSON parsing
+
+// Routes
 app.use("/api/stocks", stockRoutes); // Use stock routes
 
 connectDB(); // Call the function to establish database connection
@@ -40,7 +42,6 @@ wss.on("connection", (ws, req) => {
         ws.subscribedStock = data.symbol;
         console.log(`${clientId} subscribed to ${data.symbol}`);
       }
-
     } catch (error) {
       console.error(`Error processing message from ${clientId}:`, error);
     }
@@ -61,18 +62,19 @@ const latestStockData = new Map(); // Store the latest stock data
 
 // Send stock updates periodically (e.g., every second)
 setInterval(async () => {
-
   // Fetch the latest stock data
-  await fetchLatestStockData(latestStockData); 
-  
+  await fetchLatestStockData(latestStockData);
+
   wss.clients.forEach(async (client) => {
     if (client.readyState === WebSocket.OPEN) {
       if (client.subscribedStock === "all") {
         // If on homepage -- if client is subscribed to all stocks
-        client.send(JSON.stringify(latestStockData)); // Send the latest stock data to clients
+        client.send(JSON.stringify(latestStockData.values())); // Send the latest stock data to clients
       } else if (client.subscribedStock !== null) {
         // If client is subscribed to a specific stock
-        console.log(`Client ${client.clientId} is subscribed to ${client.subscribedStock}`);
+        console.log(
+          `Client ${client.clientId} is subscribed to ${client.subscribedStock}`
+        );
         const specificStockData = latestStockData.filter(
           (stock) => stock.symbol === client.subscribedStock
         );
@@ -86,3 +88,15 @@ setInterval(async () => {
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
+
+server.on("error", (error) => {
+  disconnectDB(); // Disconnect from MongoDB on server
+  wss.close(); // Close WebSocket server
+  console.error("Server error:", error);
+});
+
+server.on("close", () => {
+  disconnectDB(); // Disconnect from MongoDB on server close
+  wss.close(); // Close WebSocket server
+  console.log("Server closed.");
+});
