@@ -57,12 +57,13 @@ wss.on("connection", (ws, req) => {
   });
 });
 
+const latestStockData = new Map(); // Store the latest stock data
+
 // Send stock updates periodically (e.g., every second)
 setInterval(async () => {
-  // console.log(`[${new Date().toISOString()}] Sending stock updates to clients...`);
 
-  // Fetch the most recent stock data or calculate updates
-  const latestStockData = await fetchLatestStockData(); // Function to get the latest stock data
+  // Fetch the latest stock data
+  await fetchLatestStockData(latestStockData); 
   
   wss.clients.forEach(async (client) => {
     if (client.readyState === WebSocket.OPEN) {
@@ -81,7 +82,7 @@ setInterval(async () => {
       }
     }
   });
-}, 1000); // Must Modify this to 1 second
+}, 1000);
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
