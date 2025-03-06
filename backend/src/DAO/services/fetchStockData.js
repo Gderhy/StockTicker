@@ -55,7 +55,7 @@ async function fetchLatestStockData(stockDataMap) {
       })
     );
 
-    console.log("Stock data map updated.");
+    // console.log("Stock data map updated.");
   } catch (error) {
     console.error("Error fetching latest stock data:", error);
   }
