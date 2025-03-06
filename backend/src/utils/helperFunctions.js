@@ -12,7 +12,6 @@ const generateNewStockValues = (stock) => {
   );
 
   return {
-    symbol: stock.symbol,
     open: parseFloat(newOpen.toFixed(2)),
     close: parseFloat(newClose.toFixed(2)),
     high: parseFloat(newHigh.toFixed(2)),
