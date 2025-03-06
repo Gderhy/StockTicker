@@ -29,69 +29,75 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  TimeScale // Add TimeScale for date formatting
+  TimeScale
 );
 
 const StockDetailPage: React.FC = () => {
   const navigator = useNavigate();
-  const { symbol } = useParams<{ symbol: string }>(); // Get symbol from URL
-  const [historicalData, setHistoricalData] = useState<any[]>([]);
+  const { symbol } = useParams<{ symbol: string }>(); // Get stock symbol from URL
+
+  const [historicalData, setHistoricalData] = useState<StockDataType[]>([]);
   const [timeRange, setTimeRange] = useState<string>("6months"); // Default time range
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [livePrice, setLivePrice] = useState<number | null>(null); // Store live stock price
-  const [previousLivePrice, setPreviousLivePrice] = useState<number | null>(null); // Store previous live stock price
+  const [stockData, setStockData] = useState<StockDataType | null>(null); // ✅ Live stock data object
+  const [previousStockData, setPreviousStockData] =
+    useState<StockDataType | null>(null); // ✅ Store previous live stock data
 
   // Function to handle live stock price updates
-  const handleLivePriceUpdate = (stockData: StockDataType[]) => {
-    if (!stockData || stockData.length === 0) return;
+  const handleLivePriceUpdate = (
+    updatedStockData: Record<string, StockDataType>
+  ) => {
+    if (!updatedStockData || !symbol || !updatedStockData[symbol]) return;
 
-    const latestEntry = stockData[0];
-    const latestPrice = latestEntry.close;
-    const latestTimestamp = new Date().toISOString(); // Get current timestamp
+    const latestStock = updatedStockData[symbol];
 
-    setLivePrice((prevLivePrice) => {
-      setPreviousLivePrice(prevLivePrice); // Store previous live price
-      return latestPrice;
+    setStockData((prevStock) => {
+      setPreviousStockData(prevStock); // Store previous stock data
+      return latestStock;
     });
 
     setHistoricalData((prevData) => {
-      // Append the new data only if the timestamp is unique
       if (
         prevData.length > 0 &&
-        prevData[prevData.length - 1].date === latestTimestamp
+        prevData[prevData.length - 1].date === latestStock.date
       ) {
-        return prevData; // Avoid duplicate entries
+        return prevData; // Avoid duplicate timestamps
       }
-
-      const newHistoricalData = [...prevData, { date: latestTimestamp, close: latestPrice }];
-
-      console.log("New historical data:", newHistoricalData);
-      return newHistoricalData;
+      return [...prevData, latestStock]; // ✅ Append new stock data
     });
   };
 
+  // Fetch historical stock data on mount or when timeRange changes
   useEffect(() => {
     const loadData = async () => {
       if (symbol) {
         setIsLoading(true);
-        const data = await fetchHistoricalData(symbol, timeRange);
-        setHistoricalData(data);
+        setHistoricalData([]); // ✅ Clear previous data before fetching new
+        try {
+          const data = await fetchHistoricalData(symbol, timeRange);
+          setHistoricalData(data);
+        } catch (error) {
+          console.error("Error fetching historical data:", error);
+        }
         setIsLoading(false);
       }
     };
     loadData();
   }, [symbol, timeRange]);
 
+  // Establish WebSocket connection for live updates
   useEffect(() => {
+    if (!symbol) return;
+
     const webSocketConnection = connectToStockService(
       handleLivePriceUpdate,
       symbol
     );
 
     return () => {
-      if (webSocketConnection) webSocketConnection.close(); // Clean up connection
+      if (webSocketConnection) webSocketConnection.close(); // ✅ Close WebSocket on component unmount
     };
-  }, []);
+  }, [symbol]);
 
   const getUnit = () => {
     switch (timeRange) {
@@ -102,28 +108,25 @@ const StockDetailPage: React.FC = () => {
       case "1week":
         return "week";
       case "1month":
-        return "month";
       case "3months":
-        return "month";
       case "6months":
-        return "month";
       default:
         return "month";
     }
-  }
+  };
 
   // Format data for Chart.js
   const chartData = {
-    labels: historicalData.map((entry:StockDataType) => entry.date),
+    labels: historicalData.map((entry) => entry.date),
     datasets: [
       {
         label: "Stock Price",
         data: historicalData.map((entry) => entry.close),
-        borderColor: "#2962FF", // Blue line (like Yahoo Finance)
-        backgroundColor: "rgba(41, 98, 255, 0.1)", // Light blue fill
+        borderColor: "#2962FF",
+        backgroundColor: "rgba(41, 98, 255, 0.1)",
         borderWidth: 2,
-        pointRadius: 0, // Hide points for a cleaner look
-        fill: true, // Fill area under the line
+        pointRadius: 0,
+        fill: true,
       },
     ],
   };
@@ -134,47 +137,35 @@ const StockDetailPage: React.FC = () => {
     maintainAspectRatio: false,
     scales: {
       x: {
-        type: "time", // Use time scale for the x-axis
+        type: "time",
         time: {
-          unit: getUnit(), // Adjust unit based on range
+          unit: getUnit(),
           displayFormats: {
-            day: "MMM d", // Format as "Jan 1", "Feb 2", etc.
-            hour: "ha", // Format as "12PM", "1PM", etc.
+            day: "MMM d",
+            hour: "ha",
           },
         },
-        grid: {
-          display: false, // Hide x-axis grid lines
-        },
-        ticks: {
-          color: "#888", // Light gray color for ticks
-        },
+        grid: { display: false },
+        ticks: { color: "#888" },
       },
       y: {
-        grid: {
-          color: "#444", // Dark gray grid lines for y-axis
-        },
-        ticks: {
-          color: "#888", // Light gray color for ticks
-        },
+        grid: { color: "#444" },
+        ticks: { color: "#888" },
       },
     },
     plugins: {
-      legend: {
-        display: false, // Hide legend
-      },
+      legend: { display: false },
       title: {
         display: true,
         text: `${symbol} Stock Price`,
-        color: "#FFF", // White title text
-        font: {
-          size: 18,
-        },
+        color: "#FFF",
+        font: { size: 18 },
       },
       tooltip: {
-        backgroundColor: "#333", // Dark tooltip background
-        titleColor: "#FFF", // White tooltip title
-        bodyColor: "#FFF", // White tooltip body
-        borderColor: "#444", // Gray border
+        backgroundColor: "#333",
+        titleColor: "#FFF",
+        bodyColor: "#FFF",
+        borderColor: "#444",
         borderWidth: 1,
       },
     },
@@ -188,102 +179,52 @@ const StockDetailPage: React.FC = () => {
         </button>
       </div>
       <h1>{symbol} Historical Prices</h1>
-      {livePrice !== null && (
+
+      {stockData && (
         <div className="live-price">
           <h2
             style={{
               color:
-                livePrice > (previousLivePrice ?? livePrice)
+                stockData.close > (previousStockData?.close ?? stockData.close)
                   ? "green"
-                  : livePrice < (previousLivePrice ?? livePrice)
+                  : stockData.close <
+                    (previousStockData?.close ?? stockData.close)
                   ? "red"
                   : "white",
             }}
           >
-            Live Price: ${livePrice.toFixed(2)}
+            Live Price: ${stockData.close.toFixed(2)}
           </h2>
-          {/* Display live price */}
         </div>
       )}
+
       <div className="time-range-selector">
         <div className="time-range-options">
-          <label>Time Range: </label>
-          <div>
-            <input
-              type="radio"
-              id="1hour"
-              name="timeRange"
-              value="1hour"
-              checked={timeRange === "1hour"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="1hour">1 Hour</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="1day"
-              name="timeRange"
-              value="1day"
-              checked={timeRange === "1day"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="1day">1 Day</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="1week"
-              name="timeRange"
-              value="1week"
-              checked={timeRange === "1week"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="1week">1 Week</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="1month"
-              name="timeRange"
-              value="1month"
-              checked={timeRange === "1month"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="1month">1 Month</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="3months"
-              name="timeRange"
-              value="3months"
-              checked={timeRange === "3months"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="3months">3 Months</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="6months"
-              name="timeRange"
-              value="6months"
-              checked={timeRange === "6months"}
-              onChange={(e) => setTimeRange(e.target.value)}
-            />
-            <label htmlFor="6months">6 Months</label>
-          </div>
+          {["1hour", "1day", "1week", "1month", "3months", "6months"].map(
+            (range) => (
+              <div key={range}>
+                <input
+                  type="radio"
+                  id={range}
+                  name="timeRange"
+                  value={range}
+                  checked={timeRange === range}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                />
+                <label htmlFor={range}>
+                  {range.replace(/(\d)([a-z]+)/, "$1 $2")}
+                </label>
+              </div>
+            )
+          )}
         </div>
       </div>
+
       <div className="chart-container">
         {isLoading ? (
           <div className="loading-spinner"></div>
         ) : (
-          <Line
-            data={chartData}
-            options={options as any} // Cast options to any to bypass type checking
-          />
+          <Line data={chartData} options={options as any} />
         )}
       </div>
     </div>
