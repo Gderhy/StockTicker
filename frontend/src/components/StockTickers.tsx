@@ -7,12 +7,8 @@ import { useNavigate } from "react-router-dom";
 const StockTicker: React.FC = () => {
   const navigate = useNavigate();
 
-  const [stockData, setStockData] = useState<Map<string, StockDataType>>(
-    new Map()
-  );
-  const [previousStockData, setPreviousStockData] = useState<
-    Map<string, StockDataType>
-  >(new Map());
+  const [stockData, setStockData] = useState<Record<string, StockDataType>>({});
+  const [previousStockData, setPreviousStockData] = useState<Record<string, StockDataType>>({}); // Track previous stock data
   const [isLoadingStockData, setIsLoadingStockData] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>(""); // Track the search term
 
@@ -20,30 +16,27 @@ const StockTicker: React.FC = () => {
   const wsConnectionRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const webSocketConnection = connectToStockService((data: any) => {
-      setStockData((prevStockData) => {
-        const updatedStockData = new Map(prevStockData);
+    const webSocketConnection = connectToStockService(
+      (data: Record<string, StockDataType>) => {
+        console.log("Received stock data:", data);
 
-        // Save previous stock data before updating
-        setPreviousStockData((prev) => {
-          const updatedPrev = new Map(prev);
-          prevStockData.forEach((value, key) => {
-            updatedPrev.set(key, value);
+        setStockData((prevStockData) => {
+          const updatedStockData = { ...prevStockData }; // ✅ Use a plain object instead of a Map
+
+          // Save previous stock data before updating
+          setPreviousStockData({ ...prevStockData });
+
+          // Update stock data with new values from WebSocket
+          Object.entries(data).forEach(([symbol, stock]) => {
+            updatedStockData[symbol] = stock;
           });
-          return updatedPrev;
+
+          return updatedStockData; // ✅ Return an updated object
         });
 
-        // Update stock data
-        data.forEach((stock: any) => {
-          const lastUpdate = new Date().toLocaleTimeString();
-          updatedStockData.set(stock.symbol, { ...stock, lastUpdate });
-        });
-
-        return updatedStockData;
-      });
-
-      setIsLoadingStockData(false);
-    });
+        setIsLoadingStockData(false);
+      }
+    );
 
     wsConnectionRef.current = webSocketConnection;
 
@@ -62,7 +55,7 @@ const StockTicker: React.FC = () => {
   };
 
   // Filter stock data based on the search term
-  const filteredStockData = Array.from(stockData.values()).filter(
+  const filteredStockData = Object.values(stockData).filter(
     (stock) =>
       stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
       stock.companyName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -98,7 +91,7 @@ const StockTicker: React.FC = () => {
           <tbody>
             {!isLoadingStockData ? (
               filteredStockData.map((stock) => {
-                const previousStock = previousStockData.get(stock.symbol);
+                const previousStock = previousStockData[stock.symbol];
                 const previousPrice = previousStock
                   ? previousStock.close
                   : stock.close;
@@ -114,8 +107,8 @@ const StockTicker: React.FC = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <td>{stock.date}</td>
-                    <td>{stock.symbol}</td>
-                    <td>{stock.companyName}</td>
+                    <td>{stock?.symbol}</td>
+                    <td>{stock?.companyName}</td>
                     <td>${stock.open.toFixed(2)}</td>
                     <td className={`price ${changeColor}`}>
                       ${stock.close.toFixed(2)}
