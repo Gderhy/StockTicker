@@ -17,7 +17,7 @@ import {
   fetchHistoricalData,
   connectToStockService,
 } from "../services/stockService";
-import "./StockDetail.css";
+import "./StockChart.css";
 import { StockDataType } from "../types";
 import { format } from "date-fns";
 
