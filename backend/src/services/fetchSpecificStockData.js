@@ -1,4 +1,4 @@
-const { getStockModel } = require("../models/Stock"); // Function to get the dynamic model
+const { getStockModel } = require("../db/models/Stock"); // Function to get the dynamic model
 
 // Function to fetch specific stock data for a given stock symbol
 async function fetchSpecificStockData(stockSymbol) {

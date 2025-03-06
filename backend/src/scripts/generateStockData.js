@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const mongoose = require("mongoose");
-const connectDB = require("../DAO/connectDB");
-const { getStockModels} = require("../DAO/models/Stock");
-const CompanyModel = require("../DAO/models/Company"); //
+const connectDB = require("../db/connectDB");
+const { getStockModels} = require("../db/models/Stock");
+const CompanyModel = require("../db/models/Company"); //
 
 const stocks = [
   {

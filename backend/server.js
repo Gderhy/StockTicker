@@ -5,7 +5,7 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const cors = require("cors");
-const { connectDB, disconnectDB } = require("./src/DAO/mongoDb");
+const { connectDB, disconnectDB } = require("./src/db/mongoDb");
 
 const stockRoutes = require("./src/routes/stocks");
 const { fetchLatestStockData } = require("./src/services/fetchStockData");

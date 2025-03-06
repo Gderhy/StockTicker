@@ -1,4 +1,4 @@
-const { getStockModel } = require("../DAO/models/Stock");
+const { getStockModel } = require("../db/models/Stock");
 const { fetchCompanySymbols } = require("./fetchCompanies");
 const { generateNewStockValues } = require("../utils/helperFunctions");
 
