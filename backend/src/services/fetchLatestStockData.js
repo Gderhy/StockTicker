@@ -3,15 +3,15 @@ const { fetchCompanySymbols } = require("./fetchCompanies");
 const { generateNewStockValues } = require("../utils/helperFunctions");
 
 /**
- * Fetch the latest stock data, using a stock data map for efficiency.
+ * Fetch the latest stock data, using a stock data {} for efficiency.
  *
- * @param {Map<string, Object>} stockDataMap - A reference to the stock data map.
+ * @param {Object} stockDataMap - A reference to the stock data object.
  */
-async function fetchLatestStockData(stockDataMap) {
+async function fetchLatestStockData(stockDataObj) {
   try {
-    // Initialize the stock data map if it's empty
-    if (stockDataMap.size === 0) {
-      console.log("Initializing stock data map from database...");
+    // Initialize the stock data object if it's empty
+    if (Object.keys(stockDataObj).length === 0) {
+      console.log("Initializing stock data from database...");
 
       // Get all company symbols from the "companies" collection
       const companySymbols = await fetchCompanySymbols();
@@ -21,21 +21,14 @@ async function fetchLatestStockData(stockDataMap) {
           const StockModel = getStockModel(symbol);
           const latestStock = await StockModel.findOne().sort({ date: -1 });
 
-          if (latestStock) {
-            stockDataMap.set(symbol, latestStock);
-          } else {
-            console.warn(
-              `No stock data found for ${symbol}, initializing with empty values.`
-            );
-            stockDataMap.set(symbol, null);
-          }
+          stockDataObj[symbol] = latestStock || null; 
         })
       );
     }
 
-    // Loop through the existing stockDataMap and update if necessary
+    // Loop through the existing stockDataObj and update if necessary
     await Promise.all(
-      Array.from(stockDataMap.entries()).map(async ([symbol, latestStock]) => {
+      Object.entries(stockDataObj).map(async ([symbol, latestStock]) => {
         if (!latestStock) {
           console.warn(`Skipping update for ${symbol}, no initial stock data.`);
           return;
@@ -49,16 +42,15 @@ async function fetchLatestStockData(stockDataMap) {
           const StockModel = getStockModel(symbol);
           await StockModel.create(newStock);
 
-          // Update the map immediately
-          stockDataMap.set(symbol, newStock);
+          // Update the object immediately
+          stockDataObj[symbol] = newStock;
         }
       })
     );
-
-    // console.log("Stock data map updated.");
   } catch (error) {
     console.error("Error fetching latest stock data:", error);
   }
 }
+
 
 module.exports = { fetchLatestStockData };
