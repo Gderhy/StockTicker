@@ -39,11 +39,14 @@ wss.on("connection", (ws, req) => {
       // Check if the message is a subscription request
       if (data.action === "subscribe" && data.symbol) {
         // Add stock to client's subscribed stocks list
-        ws.subscribedStocks.push(data.symbol);
+        if (!ws.subscribedStocks.includes(data.symbol))
+          ws.subscribedStocks.push(data.symbol);
         console.log(`${clientId} subscribed to ${data.symbol}`);
       } else if (data.action === "unsubscribe" && data.symbol) {
         // Remove stock from client's subscribed stocks list
-        ws.subscribedStocks.remove(data.symbol);
+        ws.subscribedStocks = ws.subscribedStocks.filter(
+          (symbol) => symbol !== data.symbol
+        );
         console.log(`${clientId} unsubscribed from ${data.symbol}`);
       }
     } catch (error) {
@@ -78,32 +81,38 @@ setInterval(async () => {
 
     if (client.subscribedStocks.includes("all")) {
       // Client is subscribed to all stocks (e.g., homepage view)
-      stockDataToSend = latestStockData
+      stockDataToSend = latestStockData;
     } else if (client.subscribedStocks.length > 0) {
       // Client is subscribed to specific stocks
-      console.log(`Client ${client.clientId} is subscribed to: ${client.subscribedStocks}`);
-
-      stockDataToSend = client.subscribedStocks.reduce(
-        (filtered, symbol) => {
-          if (latestStockData.has(symbol)) {
-            filtered[symbol] = latestStockData.get(symbol);
-          }
-          return filtered;
-        },
-        {}
+      console.log(
+        `Client ${client.clientId} is subscribed to: ${client.subscribedStocks}`
       );
 
+      stockDataToSend = client.subscribedStocks.reduce((filtered, symbol) => {
+        if (latestStockData.has(symbol)) {
+          filtered[symbol] = latestStockData.get(symbol);
+        }
+        return filtered;
+      }, {});
     } else {
-      console.log(`Client ${client.clientId} is connected but not subscribed to any stocks.`);
+      console.log(
+        `Client ${client.clientId} is connected but not subscribed to any stocks.`
+      );
       return; // Skip sending data to unsubscribed clients
     }
 
     // Send the stock data to the client
+    console.log(
+      `Sending data to ${
+        client.clientId
+      }, with these subscribed stocks ${JSON.stringify(
+        client.subscribedStocks
+      )}:`,
+      stockDataToSend
+    );
     client.send(JSON.stringify(stockDataToSend));
-    console.log(stockDataToSend);
   });
 }, 1000);
-
 
 // Start the server on port 4000
 server.listen(4000, () => console.log("🚀 Server running on port 4000"));
