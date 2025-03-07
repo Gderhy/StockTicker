@@ -6,35 +6,21 @@ const { clearModelFromDb } = require("./helperFunctions/clearModelFromDb");
 const { stocks } = require("./stocks");
 const { insertCompanyData } = require("./helperFunctions/insertCompanyData");
 
-async function loadPQueue() {
-  const PQueue = (await import("p-queue")).default; // Dynamically import p-queue
-  return new PQueue({
-    interval: 60000, // 60 seconds
-    intervalCap: 5, // Max 5 requests per minute
-  });
-}
-
 async function processStock({ symbol, companyName, foundingDate }) {
   try {
-    // Fetch historical data from Polygon.io
-    const historicalData = await fetchPolygonData(symbol);
-    if (!historicalData) {
-      throw new Error(`No data found for ${symbol}`);
-    }
-
-    // Insert company data into the database
-    await insertCompanyData({ companyName, symbol, foundingDate });
-
-    // Insert historical data into the database
-    const StockModel = getStockModel(symbol);
     console.log(`Fetching historical data for ${symbol}...`);
 
-    if (historicalData.length > 0) {
-      await StockModel.insertMany(historicalData);
-      console.log(`Inserted historical data for ${symbol}.`);
-    } else {
+    const historicalData = await fetchPolygonData(symbol);
+    if (!historicalData || historicalData.length === 0) {
       console.warn(`No data found for ${symbol}.`);
+      return;
     }
+
+    await insertCompanyData({ companyName, symbol, foundingDate });
+
+    const StockModel = getStockModel(symbol);
+    await StockModel.insertMany(historicalData);
+    console.log(`Inserted historical data for ${symbol}.`);
   } catch (error) {
     console.error(`Error processing ${symbol}:`, error);
   }
@@ -43,7 +29,6 @@ async function processStock({ symbol, companyName, foundingDate }) {
 async function loadHistoricalData() {
   try {
     await connectDB();
-    const queue = await loadPQueue(); // Load p-queue dynamically
 
     // Clear the database
     await clearModelFromDb(CompanyModel);
@@ -56,15 +41,11 @@ async function loadHistoricalData() {
       StockModels.map((StockModel) => clearModelFromDb(StockModel))
     );
 
-    console.log("Adding stocks to processing queue...");
+    console.log("Processing all stocks in parallel...");
 
-    // Add stock processing tasks to the queue
-    for (const stock of stocks) {
-      queue.add(() => processStock(stock));
-    }
+    // Process all stocks at once without waiting
+    await Promise.all(stocks.map((stock) => processStock(stock)));
 
-    // Wait for all tasks to complete
-    await queue.onIdle();
     console.log("All stock data processed.");
   } catch (error) {
     console.error("Error loading historical data:", error);
