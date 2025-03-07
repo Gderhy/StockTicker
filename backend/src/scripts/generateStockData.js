@@ -120,15 +120,17 @@ async function main() {
     // Get the stock model for each symbol
     const StockModels = getStockModels(stocks.map((stock) => stock.symbol));
 
+    // Clears each stock collection
     await Promise.all(
-      StockModels.map(async (StockCollection) => {
-        await StockCollection.deleteMany({});
+      StockModels.map(async (StockModel) => {
+        await StockModel.deleteMany({});
         console.log(
-          `Cleared existing stock data for ${StockCollection.collection.name}.`
+          `Cleared existing stock data for ${StockModel.collection.name}.`
         );
       })
     );
 
+    // Generate and insert new stock data into MongoDB
     await generateStockData(StockModels);
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
