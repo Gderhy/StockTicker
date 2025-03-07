@@ -3,14 +3,8 @@ const CompanyModel = require("../db/models/Company");
 const { getStockModels, getStockModel } = require("../db/models/Stock");
 const { fetchPolygonData } = require("../services/fetchPolygon");
 const { clearModelFromDb } = require("./helperFunctions/clearModelFromDb");
-
-// Stock symbols to fetch data for
-const stocks = [
-  { symbol: "AAPL", companyName: "Apple" },
-  { symbol: "GOOGL", companyName: "Google" },
-  { symbol: "MSFT", companyName: "Microsoft" },
-  { symbol: "VPY", companyName: "Valpay" },
-];
+const { stocks } = require("./stocks");
+const { insertCompanyData } = require("./helperFunctions/insertCompanyData");
 
 // Function to load historical data into MongoDB
 async function loadHistoricalData() {
@@ -28,12 +22,17 @@ async function loadHistoricalData() {
     // Clears each stock collection
     await Promise.all(
       StockModels.map(async (StockModel) => {
-        clearModelFromDb(StockModel);
+        await clearModelFromDb(StockModel);
       })
     );
 
+    // Insert the company data
     await Promise.all(
-      stocks.map(async ({ symbol }) => {
+      stocks.map(async ({ symbol, companyName, foundingDate }) => {
+        
+        // Insert company data
+        await insertCompanyData({ companyName, symbol, foundingDate });
+
         const StockModel = getStockModel(symbol);
 
         // Fetch data from Polygon
