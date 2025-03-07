@@ -1,22 +1,22 @@
 const { getStockModel } = require("../db/models/Stock"); // Function to get the dynamic model
+const { getRangeQuery } = require("../utils/getRangeQuery"); // Helper function to get range query
 
-// Function to fetch specific stock data for a given stock symbol
-async function fetchHistoricalStockData(stockSymbol) {
+// Function to fetch filtered stock data from MongoDB
+async function fetchHistoricalStockData(stockSymbol, range) {
   try {
-    console.log(`Fetching specific stock data for ${stockSymbol}...`);
+    console.log(
+      `Fetching stock data for ${stockSymbol} with range ${range}...`
+    );
 
-    // Get the dynamic stock model for this symbol
     const StockModel = getStockModel(stockSymbol);
+    const query = getRangeQuery(range); // Call the helper function
 
-    // Fetch stock data, sorted by date (latest first)
-    const stockData = await StockModel.find().sort({ date: -1 });
+    // Fetch filtered stock data, sorted by latest date
+    const stockData = await StockModel.find(query).sort({ date: 1 });
 
     return stockData;
   } catch (error) {
-    console.error(
-      `Error fetching specific stock data for ${stockSymbol}:`,
-      error
-    );
+    console.error(`Error fetching stock data for ${stockSymbol}:`, error);
     return [];
   }
 }

@@ -1,15 +1,15 @@
-// ./src/routes/stocks.js
-
 const express = require("express");
-const { fetchHistoricalStockData } = require("../services/fetchSpecificStockData");
-const { filterDataByRange } = require("../utils/helperFunctions");
+const {
+  fetchHistoricalStockData,
+} = require("../services/fetchSpecificStockData");
 
 const router = express.Router();
 
-// Route to fetch history of a specific stock
+// Route to fetch historical stock data with filtering in MongoDB
 router.get("/:stockSymbol", async (req, res) => {
   const { stockSymbol } = req.params;
   const { range } = req.query; // Range query parameter (e.g., 1month, 3month, 6month)
+
   console.log("GET /api/stocks/:stockSymbol", stockSymbol, range);
 
   if (!stockSymbol) {
@@ -17,13 +17,10 @@ router.get("/:stockSymbol", async (req, res) => {
   }
 
   try {
-    // Fetch all stock data for the given symbol
-    const stockData = await fetchHistoricalStockData(stockSymbol);
+    // Fetch filtered stock data based on range
+    const stockData = await fetchHistoricalStockData(stockSymbol, range);
 
-    // Filter data based on the requested range
-    const filteredData = filterDataByRange(stockData, range);
-
-    res.json(filteredData);
+    res.json(stockData);
   } catch (error) {
     console.error(`Error fetching stock data for ${stockSymbol}:`, error);
     res.status(500).json({ message: "Error fetching stock data" });
