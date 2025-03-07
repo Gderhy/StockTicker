@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const mongoose = require("mongoose");
 const connectDB = require("../db/connectDB");
 const { getStockModels} = require("../db/models/Stock");
@@ -24,7 +23,7 @@ const stocks = [
     basePrice: 300,
   },
   {
-    symbol: "VPAY",
+    symbol: "VPY",
     companyName: "Valpay",
     foundingDate: new Date(),
     basePrice: 5000,
