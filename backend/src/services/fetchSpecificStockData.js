@@ -1,7 +1,7 @@
 const { getStockModel } = require("../db/models/Stock"); // Function to get the dynamic model
 
 // Function to fetch specific stock data for a given stock symbol
-async function fetchSpecificStockData(stockSymbol) {
+async function fetchHistoricalStockData(stockSymbol) {
   try {
     console.log(`Fetching specific stock data for ${stockSymbol}...`);
 
@@ -21,4 +21,4 @@ async function fetchSpecificStockData(stockSymbol) {
   }
 }
 
-module.exports = { fetchSpecificStockData };
+module.exports = { fetchHistoricalStockData };

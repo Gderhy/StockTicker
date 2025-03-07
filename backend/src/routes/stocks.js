@@ -1,7 +1,7 @@
 // ./src/routes/stocks.js
 
 const express = require("express");
-const { fetchSpecificStockData } = require("../services/fetchSpecificStockData");
+const { fetchHistoricalStockData } = require("../services/fetchSpecificStockData");
 const { filterDataByRange } = require("../utils/helperFunctions");
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.get("/:stockSymbol", async (req, res) => {
 
   try {
     // Fetch all stock data for the given symbol
-    const stockData = await fetchSpecificStockData(stockSymbol);
+    const stockData = await fetchHistoricalStockData(stockSymbol);
 
     // Filter data based on the requested range
     const filteredData = filterDataByRange(stockData, range);
