@@ -7,13 +7,23 @@ const POLYGON_BASE_URL = "https://api.polygon.io/v2/aggs/ticker";
 // Function to fetch historical data from Polygon.io
 async function fetchPolygonData(stockSymbol, multiplier = 1, timespan = "day") {
   // Define date range for fetching historical data
-  const startDate = "2023-01-01"; // Change to desired start date (YYYY-MM-DD)
-  const endDate = "2024-01-01"; // Change to desired end date (YYYY-MM-DD)
+  // Get today's date
+  const endDate = new Date();
+  const startDate = new Date();
+
+  // Subtract 6 months from today's date
+  startDate.setMonth(startDate.getMonth() - 6);
+
+  // Format dates as YYYY-MM-DD
+  const formatDate = (date) => date.toISOString().split("T")[0];
+
+  const formattedStartDate = formatDate(startDate);
+  const formattedEndDate = formatDate(endDate);
 
   try {
     console.log(`Fetching historical data for ${stockSymbol} from Polygon...`);
 
-    const url = `${POLYGON_BASE_URL}/${stockSymbol}/range/${multiplier}/${timespan}/${startDate}/${endDate}?adjusted=true&sort=asc&apiKey=${API_KEY}`;
+    const url = `${POLYGON_BASE_URL}/${stockSymbol}/range/${multiplier}/${timespan}/${formattedStartDate}/${formattedEndDate}?adjusted=true&sort=asc&apiKey=${API_KEY}`;
 
     const response = await axios.get(url);
     const data = response.data;
