@@ -1,34 +1,7 @@
-const mongoose = require("mongoose");
-const connectDB = require("../db/connectDB");
-const { getStockModels} = require("../db/models/Stock");
+const { connectDB, disconnectDB } = require("../db/mongoDb");
+const { getStockModels } = require("../db/models/Stock");
 const CompanyModel = require("../db/models/Company"); //
-
-const stocks = [
-  {
-    symbol: "AAPL",
-    companyName: "Apple",
-    foundingDate: new Date(),
-    basePrice: 150,
-  },
-  {
-    symbol: "GOOGL",
-    companyName: "Google",
-    foundingDate: new Date(),
-    basePrice: 2800,
-  },
-  {
-    symbol: "MSFT",
-    companyName: "Microsoft",
-    foundingDate: new Date(),
-    basePrice: 300,
-  },
-  {
-    symbol: "VPY",
-    companyName: "Valpay",
-    foundingDate: new Date(),
-    basePrice: 5000,
-  },
-]; // List of stocks with base prices
+const { stocks } = require("./stocks");
 
 // Function to generate realistic stock data with volatility
 async function generateStockData(StockCollections) {
@@ -135,7 +108,7 @@ async function main() {
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
   } finally {
-    mongoose.connection.close();
+    await disconnectDB();
   }
 }
 
