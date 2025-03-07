@@ -1,6 +1,6 @@
 const { getStockModel } = require("../db/models/Stock");
 const { fetchCompanies } = require("./fetchCompanies"); // ✅ Fetch both symbol & companyName
-const { generateNewStockValues } = require("../utils/helperFunctions");
+const { generateNewStockValues } = require("../utils/generateNewStockData");
 
 /**
  * Fetch the latest stock data, using a stock data {} for efficiency.
