@@ -1,6 +1,10 @@
 const mongoose = require("mongoose"); // Mongoose ORM for MongoDB
 
-// Function to return a stock model for a given stock symbol
+/*
+  Function to get a stock model for a company symbol
+  @param {String} symbol - Company symbol
+  @returns {Model} - Stock model
+*/
 const getStockModel = (symbol) => {
   // If the model already exists, return it
   if (mongoose.models[symbol]) {
@@ -20,7 +24,11 @@ const getStockModel = (symbol) => {
   return mongoose.model(symbol, stockSchema);
 };
 
-// Function to get multiple stock models for a list of company symbols
+/*
+  Function to get multiple stock models for a list of company symbols
+  @param {Array} companySymbols - List of company symbols
+  @returns {Array} - List of stock models
+*/
 const getStockModels = (companySymbols) => {
   return companySymbols.map(symbol => getStockModel(symbol));
 };
