@@ -21,6 +21,7 @@
     "express": "^4.21.2",
     "http": "^0.0.1-security",
     "mongoose": "^8.11.0",
+    "p-queue": "^8.1.0",
     "ws": "^8.18.1"
   },
   "devDependencies": {
